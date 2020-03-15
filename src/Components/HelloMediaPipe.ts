@@ -5,8 +5,7 @@
 
 import * as handpose from '@tensorflow-models/handpose';
 import { Coords3D } from '@tensorflow-models/handpose/dist/pipeline';
-// import { ScatterGL, Points } from 'scatter-gl';
-const ScatterGL = require('scatter-gl').ScatterGL;
+import { ScatterGL, Point3D } from 'scatter-gl';
 
 const VIDEO_WIDTH = 640;
 const VIDEO_HEIGHT = 500;
@@ -110,14 +109,10 @@ export default class HelloMediaPipe {
   async frameLandmarks() {
     // These anchor points allow the hand pointcloud to resize according to its
     // position in the input.
-    const ANCHOR_POINTS = [
+    const ANCHOR_POINTS: Point3D[] = [
       [0, 0, 0], [0, -VIDEO_HEIGHT, 0],
       [-VIDEO_WIDTH, 0, 0], [-VIDEO_WIDTH, -VIDEO_HEIGHT, 0]
     ];
-    // const ANCHOR_POINTS = [
-    //   0, 0, 0, 0, -VIDEO_HEIGHT, 0,
-    //   -VIDEO_WIDTH, 0, 0, -VIDEO_WIDTH, -VIDEO_HEIGHT, 0
-    // ];
     this.context.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
     const predictions = await this.model.estimateHands(this.video);
     if (predictions.length > 0) {
@@ -126,7 +121,7 @@ export default class HelloMediaPipe {
 
       if (this.scatterGL) {
         const pointsData = result.map(point => {
-          return [-point[0], -point[1], -point[2]];
+          return [-point[0], -point[1], -point[2]] as Point3D;
         });
         const dataset = new ScatterGL.Dataset([...pointsData, ...ANCHOR_POINTS]);
 
@@ -141,7 +136,7 @@ export default class HelloMediaPipe {
               return 'steelblue';
             }
             return 'white';
-          })
+          });
         } else {
           this.scatterGL.updateDataset(dataset);
         }

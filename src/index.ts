@@ -1,6 +1,7 @@
 // import Simple from './Components/FirstStep';
-import Simple from './Components/HelloMediaPipe';
+// import { HandPoseMediaPipe as HelloPose } from './Components/HandPoseMediaPipe';
+import { FaceMeshMediaPipe as HelloPose } from './Components/FaceMeshMediaPipe';
 
 window.addEventListener('DOMContentLoaded', () => {
-  new Simple();
+  new HelloPose();
 });

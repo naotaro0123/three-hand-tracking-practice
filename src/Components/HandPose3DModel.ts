@@ -5,7 +5,7 @@ import * as handpose from '@tensorflow-models/handpose';
 
 const WIDTH = 500;
 const HEIGHT = 500;
-const DEPTH = 500;
+const DEPTH = 1000;
 
 type Position = [number, number, number];
 
@@ -26,6 +26,8 @@ export class HandPose3DModel {
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     document.body.appendChild(this.renderer.domElement);
+    document.body.style.display = 'flex';
+    document.body.style.justifyContent = 'center';
     this.init();
   }
 
@@ -36,10 +38,13 @@ export class HandPose3DModel {
       1,
       1000
     );
-    this.camera.position.set(0, 0, -50);
+    this.camera.position.set(0, 10, -50);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     this.scene = new THREE.Scene();
+
+    const gridHelper = new THREE.GridHelper(200, 50);
+    this.scene.add(gridHelper);
 
     await this.addObject();
     await this.initControls();
@@ -147,10 +152,11 @@ export class HandPose3DModel {
     // Canvasの解像度位置で返されるので、WebGL用に-1.0〜1.0の値に正規化
     // normalizePosition[0] = (position[0] * 2.0 - WIDTH) / WIDTH; // X
     // normalizePosition[1] = (position[1] * 2.0 - HEIGHT) / HEIGHT; // Y
-    const offset = 20;
-    normalizePosition[0] = ((position[0] * 2.0 - WIDTH) / WIDTH) * offset; // X
-    normalizePosition[1] = -((position[1] * 2.0 - HEIGHT) / HEIGHT) * offset; // Y
-    normalizePosition[2] = -((position[0] * 2.0 - DEPTH) / DEPTH) * offset; // Z
+    const offset = 16;
+    normalizePosition[0] = ((position[0] * 2.0 - WIDTH) / WIDTH) * offset + 2; // X
+    normalizePosition[1] =
+      -((position[1] * 2.0 - HEIGHT) / HEIGHT) * offset + 4; // Y
+    normalizePosition[2] = (position[2] * 2.0 - DEPTH) / DEPTH; // Z
     console.log('position:', position);
     console.log('normalizePosition:', normalizePosition);
     return normalizePosition;

@@ -130,6 +130,7 @@ export class HandPoseMediaPipe {
     const predictions = await this.model.estimateHands(this.video);
     if (predictions.length > 0) {
       const result = predictions[0].landmarks;
+      console.log(result[0]);
       this.drawKeyPoints(result);
 
       if (this.scatterGL) {

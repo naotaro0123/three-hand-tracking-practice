@@ -58,28 +58,17 @@ export class HandPose3DCubes {
   }
 
   initCamera() {
-    this.camera = new THREE.PerspectiveCamera(
-      45,
-      this.width / this.height,
-      1,
-      1000
-    );
+    this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
     this.camera.position.set(0, 10, -40);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
   initControls() {
-    const orbitControls = new OrbitControls(
-      this.camera,
-      this.renderer.domElement
-    );
+    const orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
     orbitControls.update();
     orbitControls.addEventListener('change', () => this.tick);
 
-    const transControls = new TransformControls(
-      this.camera,
-      this.renderer.domElement
-    );
+    const transControls = new TransformControls(this.camera, this.renderer.domElement);
     transControls.addEventListener('change', () => this.tick);
     transControls.attach(this.meshes.palmBase[0]);
     transControls.addEventListener('dragging-changed', event => {
@@ -103,12 +92,7 @@ export class HandPose3DCubes {
   }
 
   addOtherObjects(material: THREE.MeshBasicMaterial) {
-    const materials = [
-      material.clone(),
-      material.clone(),
-      material.clone(),
-      material.clone()
-    ];
+    const materials = [material.clone(), material.clone(), material.clone(), material.clone()];
     materials[0].color = new THREE.Color(0x00ffff);
     materials[1].color = new THREE.Color(0x0000ff);
     materials[2].color = new THREE.Color(0xff00ff);
@@ -144,9 +128,7 @@ export class HandPose3DCubes {
 
   async setupCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error(
-        'Browser API navigator.mediaDevices.getUserMedia not available'
-      );
+      throw new Error('Browser API navigator.mediaDevices.getUserMedia not available');
     }
 
     const video = document.createElement('video');
@@ -202,8 +184,7 @@ export class HandPose3DCubes {
     // normalizePosition[1] = (position[1] * 2.0 - HEIGHT) / HEIGHT; // Y
     const offset = 16;
     normalizePosition[0] = ((position[0] * 2.0 - WIDTH) / WIDTH) * offset + 2; // X
-    normalizePosition[1] =
-      -((position[1] * 2.0 - HEIGHT) / HEIGHT) * offset + 4; // Y
+    normalizePosition[1] = -((position[1] * 2.0 - HEIGHT) / HEIGHT) * offset + 4; // Y
     normalizePosition[2] = 0; // Z
     // console.log('position:', position);
     // console.log('normalizePosition:', normalizePosition);

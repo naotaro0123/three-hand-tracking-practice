@@ -32,6 +32,8 @@
     "@tensorflow-models/handpose": "0.0.3",
     "@tensorflow/tfjs-converter": "^1.7.3",
     "@tensorflow/tfjs-core": "^1.7.3",
+    "@types/dat.gui": "^0.7.5",
+    "dat.gui": "^0.7.7",
     "scatter-gl": "^0.0.5",
     "three": "^0.115.0"
   }

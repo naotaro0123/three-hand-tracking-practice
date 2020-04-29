@@ -35,6 +35,7 @@ export class QuaternionSimple {
     this.addObject();
     this.initControls();
     this.initGUI();
+    this.setQuaternion();
     this.tick();
   }
 
@@ -94,7 +95,6 @@ export class QuaternionSimple {
   }
 
   tick() {
-    this.setQuaternion();
     this.guiFolder.updateDisplay();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.tick());

@@ -7,7 +7,13 @@ const WIDTH = 500;
 const HEIGHT = 500;
 const DEPTH = 0;
 
-type Position = [number, number, number];
+type MediaPipePosition = [number, number, number];
+const rotationAxis = {
+  x: [1, 0, 0],
+  y: [0, 1, 0],
+  z: [0, 0, 1],
+};
+type RotationAxis = keyof typeof rotationAxis;
 
 export class HandPose3DModel {
   private width: number;
@@ -59,7 +65,7 @@ export class HandPose3DModel {
     const transControls = new TransformControls(this.camera, this.renderer.domElement);
     transControls.addEventListener('change', () => this.tick);
     transControls.attach(this.palmBaseMesh);
-    transControls.addEventListener('dragging-changed', event => {
+    transControls.addEventListener('dragging-changed', (event) => {
       orbitControls.enabled = !event.value;
     });
     this.scene.add(transControls);
@@ -69,7 +75,7 @@ export class HandPose3DModel {
     const geometry = new THREE.BoxBufferGeometry(4, 7, 4);
     const material = new THREE.MeshBasicMaterial({
       color: 0x00ff00,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
     });
     this.palmBaseMesh = new THREE.Mesh(geometry, material);
     this.scene.add(this.palmBaseMesh);
@@ -156,20 +162,25 @@ export class HandPose3DModel {
     }
   }
 
-  async calclate(mesh: THREE.Mesh, position: Position, comparePosition?: Position) {
+  async calclate(
+    mesh: THREE.Mesh,
+    position: MediaPipePosition,
+    comparePosition?: MediaPipePosition
+  ) {
     const rePosition = this.normalizePosition(position);
     mesh.position.set(...rePosition);
 
     if (comparePosition) {
       const reComparePosition = this.normalizePosition(comparePosition);
-      this.normalizeRotation(mesh, rePosition, reComparePosition);
+      const quaternion = this.normalizeRotation(rePosition, reComparePosition, 'z');
+      mesh.rotation.setFromQuaternion(quaternion);
     } else {
       mesh.rotation.setFromQuaternion(this.palmBaseMesh.quaternion);
     }
   }
 
-  normalizePosition(position: Position): Position {
-    let normalizePosition: Position = [0, 0, 0];
+  normalizePosition(position: MediaPipePosition): MediaPipePosition {
+    let normalizePosition: MediaPipePosition = [0, 0, 0];
     // Canvasの解像度位置で返されるので、WebGL用に-1.0〜1.0の値に正規化
     // normalizePosition[0] = (position[0] * 2.0 - WIDTH) / WIDTH; // X
     // normalizePosition[1] = (position[1] * 2.0 - HEIGHT) / HEIGHT; // Y
@@ -180,13 +191,20 @@ export class HandPose3DModel {
     return normalizePosition;
   }
 
-  normalizeRotation(mesh: THREE.Mesh, position: Position, comparePosition: Position) {
-    let radian = Math.atan2(comparePosition[1] - position[1], comparePosition[0] - position[0]);
+  normalizeRotation(
+    originPosition: MediaPipePosition,
+    comparePosition: MediaPipePosition,
+    selectAxis: RotationAxis
+  ): THREE.Quaternion {
+    let radian = Math.atan2(
+      comparePosition[1] - originPosition[1],
+      comparePosition[0] - originPosition[0]
+    );
     const radian90 = Math.PI / 2;
     radian = radian - radian90;
-    const target = new THREE.Quaternion();
-    const axis = new THREE.Vector3(0, 0, 1).normalize();
-    target.setFromAxisAngle(axis, radian);
-    mesh.rotation.setFromQuaternion(target);
+    const quaternion = new THREE.Quaternion();
+    const axis = new THREE.Vector3(...rotationAxis[selectAxis]).normalize();
+    quaternion.setFromAxisAngle(axis, radian);
+    return quaternion;
   }
 }

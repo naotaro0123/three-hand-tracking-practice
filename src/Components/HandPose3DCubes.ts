@@ -28,7 +28,7 @@ export class HandPose3DCubes {
     indexFinger: [],
     middleFinger: [],
     ringFinger: [],
-    pinky: []
+    pinky: [],
   };
   private model: handpose.HandPose;
   private video: HTMLVideoElement;
@@ -71,7 +71,7 @@ export class HandPose3DCubes {
     const transControls = new TransformControls(this.camera, this.renderer.domElement);
     transControls.addEventListener('change', () => this.tick);
     transControls.attach(this.meshes.palmBase[0]);
-    transControls.addEventListener('dragging-changed', event => {
+    transControls.addEventListener('dragging-changed', (event) => {
       orbitControls.enabled = !event.value;
     });
     this.scene.add(transControls);
@@ -81,7 +81,7 @@ export class HandPose3DCubes {
     const geometry = new THREE.BoxBufferGeometry(2, 2, 2);
     const material = new THREE.MeshBasicMaterial({
       color: 0x00ff00,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
     });
     this.meshes.palmBase[0] = new THREE.Mesh(geometry, material);
     this.scene.add(this.meshes.palmBase[0]);
@@ -115,7 +115,7 @@ export class HandPose3DCubes {
     line.material = new THREE.MeshBasicMaterial({
       color: 0x000000,
       opacity: 0.25,
-      transparent: true
+      transparent: true,
     });
     this.scene.add(line);
   }
@@ -141,11 +141,11 @@ export class HandPose3DCubes {
         // Only setting the video to a specified size in order to accommodate a
         // point cloud, so on mobile devices accept the default size.
         width: WIDTH,
-        height: HEIGHT
-      }
+        height: HEIGHT,
+      },
     });
     video.srcObject = stream;
-    return new Promise<HTMLVideoElement>(resolve => {
+    return new Promise<HTMLVideoElement>((resolve) => {
       video.onloadedmetadata = () => {
         resolve(video);
       };
@@ -165,7 +165,7 @@ export class HandPose3DCubes {
     if (predictions.length > 0) {
       const result = predictions[0].annotations;
       const meshNames = Object.keys(this.meshes);
-      meshNames.forEach(meshName => {
+      meshNames.forEach((meshName) => {
         this.rePositionMeshes(result[meshName], this.meshes[meshName]);
       });
     }

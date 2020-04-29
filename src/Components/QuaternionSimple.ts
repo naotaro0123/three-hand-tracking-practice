@@ -42,7 +42,7 @@ export class QuaternionSimple {
     const geometry = new THREE.BoxBufferGeometry(4, 7, 4);
     const material = new THREE.MeshBasicMaterial({
       color: 0x00ff00,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
     });
     this.mesh = new THREE.Mesh(geometry, material);
     this.scene.add(this.mesh);
@@ -56,7 +56,7 @@ export class QuaternionSimple {
     line.material = new THREE.MeshBasicMaterial({
       color: 0x000000,
       opacity: 0.25,
-      transparent: true
+      transparent: true,
     });
     this.scene.add(line);
   }
@@ -78,7 +78,7 @@ export class QuaternionSimple {
     transControls.setMode('rotate');
     transControls.addEventListener('change', () => this.tick);
     transControls.attach(this.mesh);
-    transControls.addEventListener('dragging-changed', event => {
+    transControls.addEventListener('dragging-changed', (event) => {
       orbitControls.enabled = !event.value;
     });
     this.scene.add(transControls);

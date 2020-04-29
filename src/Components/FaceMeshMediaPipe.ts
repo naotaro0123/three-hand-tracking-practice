@@ -50,7 +50,7 @@ export class FaceMeshMediaPipe {
 
     this.scatterGL = new ScatterGL(this.container, {
       rotateOnStart: false,
-      selectEnabled: false
+      selectEnabled: false,
     });
   }
 
@@ -76,12 +76,12 @@ export class FaceMeshMediaPipe {
         // Only setting the video to a specified size in order to accommodate a
         // point cloud, so on mobile devices accept the default size.
         width: VIDEO_SIZE,
-        height: VIDEO_SIZE
-      }
+        height: VIDEO_SIZE,
+      },
     });
     video.srcObject = stream;
 
-    return new Promise<HTMLVideoElement>(resolve => {
+    return new Promise<HTMLVideoElement>((resolve) => {
       video.onloadedmetadata = () => {
         resolve(video);
       };
@@ -103,22 +103,22 @@ export class FaceMeshMediaPipe {
     );
 
     if (predictions.length > 0) {
-      predictions.forEach(prediction => {
+      predictions.forEach((prediction) => {
         const keypoints = prediction.scaledMesh;
 
         for (let i = 0; i < TRIANGULATION.length / 3; i++) {
           const points = [
             TRIANGULATION[i * 3],
             TRIANGULATION[i * 3 + 1],
-            TRIANGULATION[i * 3 + 2]
-          ].map(index => keypoints[index]);
+            TRIANGULATION[i * 3 + 2],
+          ].map((index) => keypoints[index]);
           this.drawPath(points);
         }
       });
 
-      const pointData = predictions.map(prediction => {
+      const pointData = predictions.map((prediction) => {
         const scaledMesh = prediction.scaledMesh as [];
-        return scaledMesh.map(point => [-point[0], -point[1], -point[2]]);
+        return scaledMesh.map((point) => [-point[0], -point[1], -point[2]]);
       });
 
       let flattenedPointsData = [];

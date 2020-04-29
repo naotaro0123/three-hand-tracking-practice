@@ -12,7 +12,7 @@ export default function FirstStep() {
     canvas.height = height;
     document.body.appendChild(canvas);
     const renderer = new THREE.WebGLRenderer({
-      canvas
+      canvas,
     });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
@@ -39,7 +39,7 @@ export default function FirstStep() {
 
     const material = new THREE.MeshStandardMaterial({
       color: 0xff0000,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
     });
 
     const geometryList = [
@@ -49,17 +49,15 @@ export default function FirstStep() {
       new THREE.TetrahedronBufferGeometry(100, 0),
       new THREE.ConeBufferGeometry(100, 100, 32),
       new THREE.CylinderBufferGeometry(50, 50, 100, 32),
-      new THREE.TorusBufferGeometry(50, 30, 16, 100)
+      new THREE.TorusBufferGeometry(50, 30, 16, 100),
     ];
 
     geometryList.forEach((geometry, index) => {
       const mesh = new THREE.Mesh(geometry, material);
       container.add(mesh);
 
-      mesh.position.x =
-        400 * Math.sin((index / geometryList.length) * Math.PI * 2);
-      mesh.position.z =
-        400 * Math.cos((index / geometryList.length) * Math.PI * 2);
+      mesh.position.x = 400 * Math.sin((index / geometryList.length) * Math.PI * 2);
+      mesh.position.z = 400 * Math.cos((index / geometryList.length) * Math.PI * 2);
     });
 
     tick();

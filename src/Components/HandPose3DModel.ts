@@ -81,7 +81,7 @@ export class HandPose3DModel {
     const geometry = new THREE.ConeBufferGeometry(2, 5, 32);
     const material = new THREE.MeshBasicMaterial({
       color,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
     });
     mesh = new THREE.Mesh(geometry, material);
     this.scene.add(mesh);
@@ -94,7 +94,7 @@ export class HandPose3DModel {
     line.material = new THREE.MeshBasicMaterial({
       color: 0x000000,
       opacity: 0.25,
-      transparent: true
+      transparent: true,
     });
     this.scene.add(line);
   }
@@ -120,11 +120,11 @@ export class HandPose3DModel {
         // Only setting the video to a specified size in order to accommodate a
         // point cloud, so on mobile devices accept the default size.
         width: WIDTH,
-        height: HEIGHT
-      }
+        height: HEIGHT,
+      },
     });
     video.srcObject = stream;
-    return new Promise<HTMLVideoElement>(resolve => {
+    return new Promise<HTMLVideoElement>((resolve) => {
       video.onloadedmetadata = () => {
         resolve(video);
       };

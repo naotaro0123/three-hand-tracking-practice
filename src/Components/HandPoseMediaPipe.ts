@@ -14,7 +14,7 @@ const fingerLookupIndices = {
   indexFinger: [0, 5, 6, 7, 8],
   middleFinger: [0, 9, 10, 11, 12],
   ringFinger: [0, 13, 14, 15, 16],
-  pinky: [0, 17, 18, 19, 20]
+  pinky: [0, 17, 18, 19, 20],
 }; // for rendering each finger as a polyline
 
 export class HandPoseMediaPipe {
@@ -45,7 +45,7 @@ export class HandPoseMediaPipe {
 
     this.scatterGL = new ScatterGL(div, {
       rotateOnStart: false,
-      selectEnabled: false
+      selectEnabled: false,
     });
   }
 
@@ -56,9 +56,7 @@ export class HandPoseMediaPipe {
 
   async setupCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error(
-        'Browser API navigator.mediaDevices.getUserMedia not available'
-      );
+      throw new Error('Browser API navigator.mediaDevices.getUserMedia not available');
     }
 
     const video = document.createElement('video');
@@ -74,11 +72,11 @@ export class HandPoseMediaPipe {
         // Only setting the video to a specified size in order to accommodate a
         // point cloud, so on mobile devices accept the default size.
         width: VIDEO_WIDTH,
-        height: VIDEO_HEIGHT
-      }
+        height: VIDEO_HEIGHT,
+      },
     });
     video.srcObject = stream;
-    return new Promise<HTMLVideoElement>(resolve => {
+    return new Promise<HTMLVideoElement>((resolve) => {
       video.onloadedmetadata = () => {
         resolve(video);
       };
@@ -118,15 +116,9 @@ export class HandPoseMediaPipe {
       [0, 0, 0],
       [0, -VIDEO_HEIGHT, 0],
       [-VIDEO_WIDTH, 0, 0],
-      [-VIDEO_WIDTH, -VIDEO_HEIGHT, 0]
+      [-VIDEO_WIDTH, -VIDEO_HEIGHT, 0],
     ];
-    this.context.drawImage(
-      this.video,
-      0,
-      0,
-      this.canvas.width,
-      this.canvas.height
-    );
+    this.context.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
     const predictions = await this.model.estimateHands(this.video);
     if (predictions.length > 0) {
       const result = predictions[0].landmarks;
@@ -134,13 +126,10 @@ export class HandPoseMediaPipe {
       this.drawKeyPoints(result);
 
       if (this.scatterGL) {
-        const pointsData = result.map(point => {
+        const pointsData = result.map((point) => {
           return [-point[0], -point[1], -point[2]] as Point3D;
         });
-        const dataset = new ScatterGL.Dataset([
-          ...pointsData,
-          ...ANCHOR_POINTS
-        ]);
+        const dataset = new ScatterGL.Dataset([...pointsData, ...ANCHOR_POINTS]);
 
         if (!this.scatterGLHasInitialized) {
           this.scatterGL.render(dataset);
@@ -148,9 +137,9 @@ export class HandPoseMediaPipe {
           const fingers = Object.keys(fingerLookupIndices);
 
           this.scatterGL.setSequences(
-            fingers.map(finger => ({ indices: fingerLookupIndices[finger] }))
+            fingers.map((finger) => ({ indices: fingerLookupIndices[finger] }))
           );
-          this.scatterGL.setPointColorer(index => {
+          this.scatterGL.setPointColorer((index) => {
             if (index < pointsData.length) {
               return 'steelblue';
             }
@@ -176,7 +165,7 @@ export class HandPoseMediaPipe {
     const fingers = Object.keys(fingerLookupIndices);
     for (let i = 0; i < fingers.length; i++) {
       const finger = fingers[i];
-      const points = fingerLookupIndices[finger].map(idx => keyPoints[idx]);
+      const points = fingerLookupIndices[finger].map((idx) => keyPoints[idx]);
       this.drawPath(points);
     }
   }

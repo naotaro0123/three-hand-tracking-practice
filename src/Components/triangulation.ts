@@ -2638,5 +2638,5 @@ export const TRIANGULATION = [
   249,
   339,
   448,
-  255
+  255,
 ];

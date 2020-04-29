@@ -6,14 +6,13 @@ import * as handpose from '@tensorflow-models/handpose';
 const WIDTH = 500;
 const HEIGHT = 500;
 const DEPTH = 0;
-
-type MediaPipePosition = [number, number, number];
 const rotationAxis = {
   x: [1, 0, 0],
   y: [0, 1, 0],
   z: [0, 0, 1],
 };
 type RotationAxis = keyof typeof rotationAxis;
+type Position = [number, number, number];
 
 export class HandPose3DModel {
   private width: number;
@@ -26,6 +25,7 @@ export class HandPose3DModel {
   private thumbMesh: THREE.Mesh;
   private model: handpose.HandPose;
   private video: HTMLVideoElement;
+  private predictResult: { [key: string]: Position[] };
 
   constructor() {
     this.width = WIDTH;
@@ -147,53 +147,53 @@ export class HandPose3DModel {
   async predict() {
     const predictions = await this.model.estimateHands(this.video);
     if (predictions.length > 0) {
-      const result = predictions[0].annotations;
-      this.calclate(this.palmBaseMesh, result['palmBase'][0], result['middleFinger'][0]);
-      this.calclate(this.middleFingerMesh, result['middleFinger'][3]);
-      this.calclate(this.thumbMesh, result['thumb'][0]);
-      const palmBase = this.normalizePosition(result['palmBase'][0]);
-      const thumb = this.normalizePosition(result['thumb'][0]);
+      this.predictResult = predictions[0].annotations;
+      this.calclate(
+        this.palmBaseMesh,
+        this.predictResult['palmBase'][0],
+        this.predictResult['middleFinger'][0]
+      );
+      this.calclate(this.middleFingerMesh, this.predictResult['middleFinger'][3]);
+      this.calclate(this.thumbMesh, this.predictResult['thumb'][0]);
+
       console.log(
-        `palmBase:${palmBase[0]}`,
-        `thumb:${thumb[0]}`,
-        thumb[0] - palmBase[0],
-        palmBase[0] < thumb[0] ? '手の平' : '手の裏'
+        this.predictResult.palmBase[0] < this.predictResult.thumb[0] ? 'FrontSide' : 'BackSide'
       );
     }
   }
 
-  async calclate(
-    mesh: THREE.Mesh,
-    position: MediaPipePosition,
-    comparePosition?: MediaPipePosition
-  ) {
-    const rePosition = this.normalizePosition(position);
+  async calclate(mesh: THREE.Mesh, originPosition: Position, comparePosition?: Position) {
+    const rePosition = this.normalizePosition(originPosition);
     mesh.position.set(...rePosition);
 
     if (comparePosition) {
       const reComparePosition = this.normalizePosition(comparePosition);
       const quaternion = this.normalizeRotation(rePosition, reComparePosition, 'z');
-      mesh.rotation.setFromQuaternion(quaternion);
+
+      const palmBase = this.normalizePosition(originPosition);
+      const thumb = this.normalizePosition(this.predictResult['thumb'][0]);
+      const quaternionRotation = this.normalizeRotation(palmBase, thumb, 'y');
+      mesh.rotation.setFromQuaternion(quaternion.multiply(quaternionRotation));
     } else {
       mesh.rotation.setFromQuaternion(this.palmBaseMesh.quaternion);
     }
   }
 
-  normalizePosition(position: MediaPipePosition): MediaPipePosition {
-    let normalizePosition: MediaPipePosition = [0, 0, 0];
+  normalizePosition(originPosition: Position): Position {
+    let normalizePosition: Position = [0, 0, 0];
     // Canvasの解像度位置で返されるので、WebGL用に-1.0〜1.0の値に正規化
     // normalizePosition[0] = (position[0] * 2.0 - WIDTH) / WIDTH; // X
     // normalizePosition[1] = (position[1] * 2.0 - HEIGHT) / HEIGHT; // Y
     const offset = 16;
-    normalizePosition[0] = ((position[0] * 2.0 - WIDTH) / WIDTH) * offset + 2; // X
-    normalizePosition[1] = -((position[1] * 2.0 - HEIGHT) / HEIGHT) * offset + 4; // Y
+    normalizePosition[0] = ((originPosition[0] * 2.0 - WIDTH) / WIDTH) * offset + 2; // X
+    normalizePosition[1] = -((originPosition[1] * 2.0 - HEIGHT) / HEIGHT) * offset + 4; // Y
     // normalizePosition[2] = (position[2] * 2.0 - DEPTH) / DEPTH; // Z
     return normalizePosition;
   }
 
   normalizeRotation(
-    originPosition: MediaPipePosition,
-    comparePosition: MediaPipePosition,
+    originPosition: Position,
+    comparePosition: Position,
     selectAxis: RotationAxis
   ): THREE.Quaternion {
     let radian = Math.atan2(

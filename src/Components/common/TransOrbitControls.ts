@@ -16,7 +16,7 @@ export class TransOrbitControls {
     this.initControls();
   }
 
-  initControls() {
+  private initControls() {
     const orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
     orbitControls.update();
     orbitControls.addEventListener('change', () => this.tick);

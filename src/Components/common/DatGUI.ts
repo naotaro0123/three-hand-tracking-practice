@@ -23,7 +23,7 @@ export class DatGUI {
     }
   }
 
-  initGUI() {
+  private initGUI() {
     const gui = new GUI();
     this.guiFolder = gui.addFolder(this.mode);
     this.guiFolder.add(this.target, 'x', 0, Math.PI * 2, 0.01);

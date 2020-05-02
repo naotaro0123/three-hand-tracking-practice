@@ -1,15 +1,12 @@
 import * as THREE from 'three';
 import * as handpose from '@tensorflow-models/handpose';
 
+import { Video } from '../common/Video';
 import { DatGUI } from '../common/DatGUI';
+import { Normalize } from '../common/Normalize';
 import { TransOrbitControls } from '../common/TransOrbitControls';
 import { TransControlMode } from '../../models/Mode';
-import {
-  rotationAxis,
-  RotationAxisTypes,
-  PositionTypes,
-  HandMeshTypes,
-} from '../../models/HandPose';
+import { PositionTypes, HandMeshTypes } from '../../models/HandPose';
 
 const WIDTH = 500;
 const HEIGHT = 500;
@@ -33,6 +30,7 @@ export class HandPose3DHands {
   private predictResult: { [key: string]: PositionTypes[] };
   private gui: DatGUI;
   private mode: TransControlMode = 'translate';
+  private normalize: Normalize;
 
   constructor() {
     this.width = WIDTH;
@@ -123,34 +121,10 @@ export class HandPose3DHands {
 
   async initHandPose() {
     this.model = await handpose.load();
-    this.video = await this.setupCamera();
+    this.normalize = new Normalize(this.width, this.height);
+    const video = new Video(this.width, this.height);
+    this.video = await video.setupWebCamera();
     await this.video.play();
-  }
-
-  async setupCamera() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error('Browser API navigator.mediaDevices.getUserMedia not available');
-    }
-
-    const video = document.createElement('video');
-    video.style.transform = 'scaleX(-1)';
-    document.body.appendChild(video);
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: false,
-      video: {
-        facingMode: 'user',
-        // Only setting the video to a specified size in order to accommodate a
-        // point cloud, so on mobile devices accept the default size.
-        width: WIDTH,
-        height: HEIGHT,
-      },
-    });
-    video.srcObject = stream;
-    return new Promise<HTMLVideoElement>((resolve) => {
-      video.onloadedmetadata = () => {
-        resolve(video);
-      };
-    });
   }
 
   tick() {
@@ -165,65 +139,36 @@ export class HandPose3DHands {
     const predictions = await this.model.estimateHands(this.video);
     if (predictions.length > 0) {
       this.predictResult = predictions[0].annotations;
-      const meshNames = Object.keys(this.meshes);
-      meshNames.forEach((meshName: keyof HandMeshTypes) => {
-        this.meshes[meshName].forEach((mesh, index) => {
-          if (meshName === 'palmBase') {
-            this.calclate(
-              mesh,
-              this.predictResult[meshName][index],
-              this.predictResult['middleFinger'][0]
-            );
-          } else {
-            const comprePredictResult =
-              index === 0
-                ? this.predictResult['palmBase'][0]
-                : this.predictResult[meshName][index - 1];
-            this.calclate(mesh, this.predictResult[meshName][index], comprePredictResult);
-          }
-        });
-      });
+      this.rePositionMeshs();
     }
   }
 
-  async calclate(mesh: THREE.Mesh, originPosition: PositionTypes, comparePosition: PositionTypes) {
-    const rePosition = this.normalizePosition(originPosition);
-    mesh.position.set(...rePosition);
+  rePositionMeshs() {
+    const meshNames = Object.keys(this.meshes);
+    const thumbPredict = this.predictResult['thumb'][0];
 
-    const reComparePosition = this.normalizePosition(comparePosition);
-    const quaternion = this.normalizeRotation(rePosition, reComparePosition, 'z');
-
-    const thumb = this.normalizePosition(this.predictResult['thumb'][0]);
-    const quaternionRotation = this.normalizeRotation(rePosition, thumb, 'y');
-    mesh.rotation.setFromQuaternion(quaternion.multiply(quaternionRotation));
-  }
-
-  normalizePosition(originPosition: PositionTypes): PositionTypes {
-    let normalizePosition: PositionTypes = [0, 0, 0];
-    // Canvasの解像度位置で返されるので、WebGL用に-1.0〜1.0の値に正規化
-    // normalizePosition[0] = (position[0] * 2.0 - WIDTH) / WIDTH; // X
-    // normalizePosition[1] = (position[1] * 2.0 - HEIGHT) / HEIGHT; // Y
-    const offset = 16;
-    normalizePosition[0] = ((originPosition[0] * 2.0 - WIDTH) / WIDTH) * offset + 2; // X
-    normalizePosition[1] = -((originPosition[1] * 2.0 - HEIGHT) / HEIGHT) * offset + 4; // Y
-    // normalizePosition[2] = (position[2] * 2.0 - DEPTH) / DEPTH; // Z
-    return normalizePosition;
-  }
-
-  normalizeRotation(
-    originPosition: PositionTypes,
-    comparePosition: PositionTypes,
-    selectAxis: RotationAxisTypes
-  ): THREE.Quaternion {
-    let radian = Math.atan2(
-      comparePosition[1] - originPosition[1],
-      comparePosition[0] - originPosition[0]
-    );
-    const radian90 = Math.PI / 2;
-    radian = radian - radian90;
-    const quaternion = new THREE.Quaternion();
-    const axis = new THREE.Vector3(...rotationAxis[selectAxis]).normalize();
-    quaternion.setFromAxisAngle(axis, radian);
-    return quaternion;
+    meshNames.forEach((meshName: keyof HandMeshTypes) => {
+      this.meshes[meshName].forEach((mesh, index) => {
+        if (meshName === 'palmBase') {
+          this.normalize.calclate(
+            mesh,
+            this.predictResult[meshName][index],
+            this.predictResult['middleFinger'][0],
+            thumbPredict
+          );
+        } else {
+          const comprePredictResult =
+            index === 0
+              ? this.predictResult['palmBase'][0]
+              : this.predictResult[meshName][index - 1];
+          this.normalize.calclate(
+            mesh,
+            this.predictResult[meshName][index],
+            comprePredictResult,
+            thumbPredict
+          );
+        }
+      });
+    });
   }
 }

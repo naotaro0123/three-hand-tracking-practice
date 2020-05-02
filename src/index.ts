@@ -1,7 +1,10 @@
-// import { HandPoseMediaPipe as HelloPose } from './Components/HandPoseMediaPipe';
-// import { FaceMeshMediaPipe as HelloPose } from './Components/FaceMeshMediaPipe';
-import { HandPose3DModel as HelloPose } from './Components/HandPose3DModel';
-// import { HandPose3DCubes as HelloPose } from './Components/HandPose3DCubes';
+// Convert MediaPipe Sample to TypeScript
+// import { HandPoseMediaPipe as HelloPose } from './Components/HandPose/HandPoseMediaPipe';
+// import { FaceMeshMediaPipe as HelloPose } from './Components/FaceMesh/FaceMeshMediaPipe';
+
+// Original Test Code
+// import { HandPoseDebug as HelloPose } from './Components/HandPose/HandPoseDebug';
+import { HandPose3DHands as HelloPose } from './Components/HandPose/HandPose3DHands';
 // import { QuaternionSimple as HelloPose } from './Components/QuaternionSimple';
 
 window.addEventListener('DOMContentLoaded', () => {

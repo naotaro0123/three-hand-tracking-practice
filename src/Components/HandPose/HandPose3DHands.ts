@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import * as handpose from '@tensorflow-models/handpose';
 
-import { TransOrbitControls } from './common/TransOrbitControls';
-import { PositionTypes, HandMeshTypes } from '../models/HandPose';
+import { TransOrbitControls } from '../common/TransOrbitControls';
+import { PositionTypes, HandMeshTypes } from '../../models/HandPose';
 
 const WIDTH = 500;
 const HEIGHT = 500;
 
-export class HandPose3DCubes {
+export class HandPose3DHands {
   private width: number;
   private height: number;
   private renderer: THREE.WebGLRenderer;

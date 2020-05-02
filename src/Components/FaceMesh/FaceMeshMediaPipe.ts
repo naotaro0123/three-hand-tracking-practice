@@ -1,7 +1,7 @@
 import * as facemesh from '@tensorflow-models/facemesh';
 import { ScatterGL } from 'scatter-gl';
 
-import { TRIANGULATION } from '../const/triangulation';
+import { TRIANGULATION } from '../../const/triangulation';
 
 const VIDEO_SIZE = 430;
 

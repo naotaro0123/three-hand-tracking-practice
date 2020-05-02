@@ -2,17 +2,11 @@ import * as THREE from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as handpose from '@tensorflow-models/handpose';
+import { rotationAxis, RotationAxis, Position } from '../models/HandPose';
 
 const WIDTH = 500;
 const HEIGHT = 500;
 const DEPTH = 0;
-const rotationAxis = {
-  x: [1, 0, 0],
-  y: [0, 1, 0],
-  z: [0, 0, 1],
-};
-type RotationAxis = keyof typeof rotationAxis;
-type Position = [number, number, number];
 
 export class HandPose3DModel {
   private width: number;

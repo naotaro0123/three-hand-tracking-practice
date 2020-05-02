@@ -2,19 +2,10 @@ import * as THREE from 'three';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as handpose from '@tensorflow-models/handpose';
+import { Position, HandMeshs } from '../models/HandPose';
 
 const WIDTH = 500;
 const HEIGHT = 500;
-
-type Position = [number, number, number];
-type HandMeshs = {
-  palmBase: THREE.Mesh[];
-  thumb: THREE.Mesh[];
-  indexFinger: THREE.Mesh[];
-  middleFinger: THREE.Mesh[];
-  ringFinger: THREE.Mesh[];
-  pinky: THREE.Mesh[];
-};
 
 export class HandPose3DCubes {
   private width: number;

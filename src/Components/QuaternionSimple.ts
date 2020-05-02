@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { GUI } from 'dat.gui';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+
+import { DatGUI } from './common/DatGUI';
+import { TransOrbitControls } from './common/TransOrbitControls';
+import { TransControlMode } from '../models/Mode';
 
 export class QuaternionSimple {
   private width: number;
@@ -10,7 +11,8 @@ export class QuaternionSimple {
   private camera: THREE.Camera;
   private scene: THREE.Scene;
   private mesh: THREE.Mesh;
-  private guiFolder: GUI;
+  private gui: DatGUI;
+  private mode: TransControlMode = 'rotate';
 
   constructor() {
     this.width = window.innerWidth;
@@ -33,10 +35,21 @@ export class QuaternionSimple {
     this.scene.add(gridHelper);
 
     this.addObject();
-    this.initControls();
-    this.initGUI();
+    this.commonInit();
     this.setQuaternion();
     this.tick();
+  }
+
+  commonInit() {
+    this.gui = new DatGUI(this.mode, this.mesh);
+    new TransOrbitControls(
+      this.mode,
+      this.camera,
+      this.renderer,
+      this.scene,
+      this.mesh,
+      this.tick()
+    );
   }
 
   addObject() {
@@ -70,32 +83,8 @@ export class QuaternionSimple {
     // quaternion.multiply(target);
   }
 
-  initControls() {
-    const orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
-    orbitControls.update();
-    orbitControls.addEventListener('change', () => this.tick);
-
-    const transControls = new TransformControls(this.camera, this.renderer.domElement);
-    transControls.setMode('rotate');
-    transControls.addEventListener('change', () => this.tick);
-    transControls.attach(this.mesh);
-    transControls.addEventListener('dragging-changed', (event) => {
-      orbitControls.enabled = !event.value;
-    });
-    this.scene.add(transControls);
-  }
-
-  initGUI() {
-    const gui = new GUI();
-    this.guiFolder = gui.addFolder('Rotate');
-    this.guiFolder.add(this.mesh.rotation, 'x', 0, Math.PI * 2, 0.01);
-    this.guiFolder.add(this.mesh.rotation, 'y', 0, Math.PI * 2, 0.01);
-    this.guiFolder.add(this.mesh.rotation, 'z', 0, Math.PI * 2, 0.01);
-    this.guiFolder.open();
-  }
-
   tick() {
-    this.guiFolder.updateDisplay();
+    this.gui.guiFolder.updateDisplay();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.tick());
   }

@@ -5,11 +5,11 @@ export const rotationAxis = {
   y: [0, 1, 0],
   z: [0, 0, 1],
 };
-export type RotationAxis = keyof typeof rotationAxis;
+export type RotationAxisTypes = keyof typeof rotationAxis;
 
-export type Position = [number, number, number];
+export type PositionTypes = [number, number, number];
 
-export type HandMeshs = {
+export type HandMeshTypes = {
   palmBase: THREE.Mesh[];
   thumb: THREE.Mesh[];
   indexFinger: THREE.Mesh[];
@@ -17,4 +17,3 @@ export type HandMeshs = {
   ringFinger: THREE.Mesh[];
   pinky: THREE.Mesh[];
 };
-export type HandMeshType = keyof HandMeshs;

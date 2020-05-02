@@ -1,8 +1,10 @@
 import * as THREE from 'three';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as handpose from '@tensorflow-models/handpose';
-import { rotationAxis, RotationAxis, Position } from '../models/HandPose';
+
+import { DatGUI } from './common/DatGUI';
+import { TransOrbitControls } from './common/TransOrbitControls';
+import { TransControlMode } from '../models/Mode';
+import { rotationAxis, RotationAxisTypes, PositionTypes } from '../models/HandPose';
 
 const WIDTH = 500;
 const HEIGHT = 500;
@@ -19,7 +21,9 @@ export class HandPose3DModel {
   private thumbMesh: THREE.Mesh;
   private model: handpose.HandPose;
   private video: HTMLVideoElement;
-  private predictResult: { [key: string]: Position[] };
+  private predictResult: { [key: string]: PositionTypes[] };
+  private gui: DatGUI;
+  private mode: TransControlMode = 'translate';
 
   constructor() {
     this.width = WIDTH;
@@ -46,23 +50,21 @@ export class HandPose3DModel {
     await this.addParentObject();
     this.middleFingerMesh = await this.addChildObject(this.middleFingerMesh, 0x00ffff);
     this.thumbMesh = await this.addChildObject(this.thumbMesh, 0x0000ff);
-    await this.initControls();
     await this.initHandPose();
+    await this.commonInit();
     await this.tick();
   }
 
-  initControls() {
-    const orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
-    orbitControls.update();
-    orbitControls.addEventListener('change', () => this.tick);
-
-    const transControls = new TransformControls(this.camera, this.renderer.domElement);
-    transControls.addEventListener('change', () => this.tick);
-    transControls.attach(this.palmBaseMesh);
-    transControls.addEventListener('dragging-changed', (event) => {
-      orbitControls.enabled = !event.value;
-    });
-    this.scene.add(transControls);
+  commonInit() {
+    this.gui = new DatGUI(this.mode, this.palmBaseMesh);
+    new TransOrbitControls(
+      this.mode,
+      this.camera,
+      this.renderer,
+      this.scene,
+      this.palmBaseMesh,
+      this.tick()
+    );
   }
 
   addParentObject() {
@@ -134,6 +136,7 @@ export class HandPose3DModel {
   tick() {
     this.predict();
 
+    this.gui.guiFolder.updateDisplay();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.tick());
   }
@@ -156,7 +159,7 @@ export class HandPose3DModel {
     }
   }
 
-  async calclate(mesh: THREE.Mesh, originPosition: Position, comparePosition?: Position) {
+  async calclate(mesh: THREE.Mesh, originPosition: PositionTypes, comparePosition?: PositionTypes) {
     const rePosition = this.normalizePosition(originPosition);
     mesh.position.set(...rePosition);
 
@@ -173,8 +176,8 @@ export class HandPose3DModel {
     }
   }
 
-  normalizePosition(originPosition: Position): Position {
-    let normalizePosition: Position = [0, 0, 0];
+  normalizePosition(originPosition: PositionTypes): PositionTypes {
+    let normalizePosition: PositionTypes = [0, 0, 0];
     // Canvasの解像度位置で返されるので、WebGL用に-1.0〜1.0の値に正規化
     // normalizePosition[0] = (position[0] * 2.0 - WIDTH) / WIDTH; // X
     // normalizePosition[1] = (position[1] * 2.0 - HEIGHT) / HEIGHT; // Y
@@ -186,9 +189,9 @@ export class HandPose3DModel {
   }
 
   normalizeRotation(
-    originPosition: Position,
-    comparePosition: Position,
-    selectAxis: RotationAxis
+    originPosition: PositionTypes,
+    comparePosition: PositionTypes,
+    selectAxis: RotationAxisTypes
   ): THREE.Quaternion {
     let radian = Math.atan2(
       comparePosition[1] - originPosition[1],

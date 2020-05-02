@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as handpose from '@tensorflow-models/handpose';
-import { Position, HandMeshs } from '../models/HandPose';
+
+import { TransOrbitControls } from './common/TransOrbitControls';
+import { PositionTypes, HandMeshTypes } from '../models/HandPose';
 
 const WIDTH = 500;
 const HEIGHT = 500;
@@ -13,7 +13,7 @@ export class HandPose3DCubes {
   private renderer: THREE.WebGLRenderer;
   private camera: THREE.Camera;
   private scene: THREE.Scene;
-  private meshes: HandMeshs = {
+  private meshes: HandMeshTypes = {
     palmBase: [],
     thumb: [],
     indexFinger: [],
@@ -43,7 +43,7 @@ export class HandPose3DCubes {
     this.scene.add(gridHelper);
     this.initCamera();
     await this.addObject();
-    await this.initControls();
+    await this.commonInit();
     await this.initHandPose();
     await this.tick();
   }
@@ -54,18 +54,15 @@ export class HandPose3DCubes {
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
-  initControls() {
-    const orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
-    orbitControls.update();
-    orbitControls.addEventListener('change', () => this.tick);
-
-    const transControls = new TransformControls(this.camera, this.renderer.domElement);
-    transControls.addEventListener('change', () => this.tick);
-    transControls.attach(this.meshes.palmBase[0]);
-    transControls.addEventListener('dragging-changed', (event) => {
-      orbitControls.enabled = !event.value;
-    });
-    this.scene.add(transControls);
+  commonInit() {
+    new TransOrbitControls(
+      'rotate',
+      this.camera,
+      this.renderer,
+      this.scene,
+      this.meshes.palmBase[0],
+      this.tick()
+    );
   }
 
   addObject() {
@@ -162,14 +159,14 @@ export class HandPose3DCubes {
     }
   }
 
-  rePositionMeshes(positions: Position[], mesh: THREE.Mesh) {
+  rePositionMeshes(positions: PositionTypes[], mesh: THREE.Mesh) {
     positions.forEach((value, i) => {
       mesh[i].position.set(...this.normalize(value));
     });
   }
 
-  normalize(position: Position): Position {
-    let normalizePosition: Position = [0, 0, 0];
+  normalize(position: PositionTypes): PositionTypes {
+    let normalizePosition: PositionTypes = [0, 0, 0];
     // Canvasの解像度位置で返されるので、WebGL用に-1.0〜1.0の値に正規化
     // normalizePosition[0] = (position[0] * 2.0 - WIDTH) / WIDTH; // X
     // normalizePosition[1] = (position[1] * 2.0 - HEIGHT) / HEIGHT; // Y

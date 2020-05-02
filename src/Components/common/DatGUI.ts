@@ -31,4 +31,8 @@ export class DatGUI {
     this.guiFolder.add(this.target, 'z', 0, Math.PI * 2, 0.01);
     this.guiFolder.open();
   }
+
+  update() {
+    this.guiFolder.updateDisplay();
+  }
 }

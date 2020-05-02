@@ -34,18 +34,15 @@ export class HandPoseDebug {
     document.body.appendChild(this.renderer.domElement);
     document.body.style.display = 'flex';
     document.body.style.justifyContent = 'center';
+
     this.init();
   }
 
   async init() {
-    this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
-    this.camera.position.set(0, 10, -50);
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
-
     this.scene = new THREE.Scene();
-
     const gridHelper = new THREE.GridHelper(200, 50);
     this.scene.add(gridHelper);
+    this.initCamera();
 
     await this.addParentObject();
     this.middleFingerMesh = await [
@@ -56,18 +53,24 @@ export class HandPoseDebug {
     ];
     this.thumbMesh = await this.addChildObject(0xffffff);
     await this.initHandPose();
-    await this.commonInit();
+    await this.commonInit(this.palmBaseMesh);
     await this.tick();
   }
 
-  commonInit() {
-    this.gui = new DatGUI(this.mode, this.palmBaseMesh);
+  initCamera() {
+    this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
+    this.camera.position.set(0, 10, -50);
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+  }
+
+  commonInit(operateMesh: THREE.Mesh) {
+    this.gui = new DatGUI(this.mode, operateMesh);
     new TransOrbitControls(
       this.mode,
       this.camera,
       this.renderer,
       this.scene,
-      this.palmBaseMesh,
+      operateMesh,
       this.tick()
     );
   }
@@ -142,7 +145,7 @@ export class HandPoseDebug {
   tick() {
     this.predict();
 
-    this.gui.guiFolder.updateDisplay();
+    this.gui.update();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.tick());
   }
@@ -179,7 +182,11 @@ export class HandPoseDebug {
         this.predictResult['middleFinger'][2]
       );
       // thumbMesh
-      this.calclate(this.thumbMesh, this.predictResult['thumb'][0]);
+      this.calclate(
+        this.thumbMesh,
+        this.predictResult['thumb'][0],
+        this.predictResult['palmBase'][0]
+      );
 
       console.log(
         this.predictResult.palmBase[0] < this.predictResult.thumb[0] ? 'FrontSide' : 'BackSide'
@@ -187,21 +194,16 @@ export class HandPoseDebug {
     }
   }
 
-  async calclate(mesh: THREE.Mesh, originPosition: PositionTypes, comparePosition?: PositionTypes) {
+  async calclate(mesh: THREE.Mesh, originPosition: PositionTypes, comparePosition: PositionTypes) {
     const rePosition = this.normalizePosition(originPosition);
     mesh.position.set(...rePosition);
 
-    if (comparePosition) {
-      const reComparePosition = this.normalizePosition(comparePosition);
-      const quaternion = this.normalizeRotation(rePosition, reComparePosition, 'z');
+    const reComparePosition = this.normalizePosition(comparePosition);
+    const quaternion = this.normalizeRotation(rePosition, reComparePosition, 'z');
 
-      const palmBase = this.normalizePosition(originPosition);
-      const thumb = this.normalizePosition(this.predictResult['thumb'][0]);
-      const quaternionRotation = this.normalizeRotation(palmBase, thumb, 'y');
-      mesh.rotation.setFromQuaternion(quaternion.multiply(quaternionRotation));
-    } else {
-      mesh.rotation.setFromQuaternion(this.palmBaseMesh.quaternion);
-    }
+    const thumb = this.normalizePosition(this.predictResult['thumb'][0]);
+    const quaternionRotation = this.normalizeRotation(rePosition, thumb, 'y');
+    mesh.rotation.setFromQuaternion(quaternion.multiply(quaternionRotation));
   }
 
   normalizePosition(originPosition: PositionTypes): PositionTypes {

@@ -10,25 +10,33 @@ export class DatGUI {
     this.initGUI();
   }
 
-  get target() {
+  private target(mesh: THREE.Mesh) {
     switch (this.mode) {
       case 'translate':
-        return this.mesh.position;
+        return mesh.position;
       case 'rotate':
-        return this.mesh.rotation;
+        return mesh.rotation;
       case 'scale':
-        return this.mesh.scale;
+        return mesh.scale;
       default:
-        return this.mesh.position;
+        return mesh.position;
     }
   }
 
   private initGUI() {
     const gui = new GUI();
     this.guiFolder = gui.addFolder(this.mode);
-    this.guiFolder.add(this.target, 'x', 0, Math.PI * 2, 0.01);
-    this.guiFolder.add(this.target, 'y', 0, Math.PI * 2, 0.01);
-    this.guiFolder.add(this.target, 'z', 0, Math.PI * 2, 0.01);
+    if (this.mesh instanceof THREE.Mesh) {
+      this.guiFolder.add(this.target(this.mesh), 'x', 0, Math.PI * 2, 0.01);
+      this.guiFolder.add(this.target(this.mesh), 'y', 0, Math.PI * 2, 0.01);
+      this.guiFolder.add(this.target(this.mesh), 'z', 0, Math.PI * 2, 0.01);
+    } else if (this.mesh instanceof THREE.Group) {
+      // when hand model
+      // this.guiFolder.add(this.target, 'x', 0, Math.PI * 2, 0.01);
+      // this.guiFolder.add(this.target, 'y', 0, Math.PI * 2, 0.01);
+      // this.guiFolder.add(this.target, 'z', 0, Math.PI * 2, 0.01);
+      console.log(this.mesh);
+    }
     this.guiFolder.open();
   }
 

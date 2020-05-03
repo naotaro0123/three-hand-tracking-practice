@@ -4,10 +4,11 @@
 
 // Original Test Code
 // import { HandPoseDebug as HelloPose } from './Components/HandPose/HandPoseDebug';
-import { HandPose3DHands as HelloPose } from './Components/HandPose/HandPose3DHands';
+// import { HandPose3DHands as HelloPose } from './Components/HandPose/HandPose3DHands';
 
-// Test Sample
-// import { QuaternionSimple as HelloPose } from './Components/QuaternionSimple';
+// Debug Sample
+// import { QuaternionDebug as HelloPose } from './Components/Debug/QuaternionDebug';
+import { GLTFDebug as HelloPose } from './Components/Debug/GLTFDebug';
 
 window.addEventListener('DOMContentLoaded', () => {
   new HelloPose();

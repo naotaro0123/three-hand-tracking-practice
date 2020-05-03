@@ -6,7 +6,7 @@ import { TransControlMode } from '../../models/Mode';
 export class DatGUI {
   public guiFolder: GUI;
 
-  constructor(private mode: TransControlMode, private mesh: THREE.Mesh) {
+  constructor(private mode: TransControlMode, private mesh: THREE.Mesh | THREE.Group) {
     this.initGUI();
   }
 

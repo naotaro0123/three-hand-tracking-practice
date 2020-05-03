@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 
-import { DatGUI } from './common/DatGUI';
-import { TransOrbitControls } from './common/TransOrbitControls';
-import { TransControlMode } from '../models/Mode';
+import { DatGUI } from '../common/DatGUI';
+import { TransOrbitControls } from '../common/TransOrbitControls';
+import { TransControlMode } from '../../models/Mode';
 
-export class QuaternionSimple {
+export class QuaternionDebug {
   private width: number;
   private height: number;
   private renderer: THREE.WebGLRenderer;

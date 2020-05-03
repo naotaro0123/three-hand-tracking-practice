@@ -20,7 +20,7 @@ export class GLTFDebug {
   private camera: THREE.Camera;
   private scene: THREE.Scene;
   private gui: DatGUI;
-  private mode: TransControlMode = 'translate';
+  private mode: TransControlMode = 'rotate';
   private character: THREE.Group;
 
   constructor() {

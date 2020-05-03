@@ -5,7 +5,7 @@ import { DatGUI } from '../common/DatGUI';
 import { TransOrbitControls } from '../common/TransOrbitControls';
 import { TransControlMode } from '../../models/Mode';
 
-const GLTF_PATH = '../../assets/suzannu.gltf';
+const GLTF_PATH = '../../assets/hand.gltf';
 const radius180 = Math.PI;
 const characterInfo = {
   position: [0.0, 5.0, 0.0],

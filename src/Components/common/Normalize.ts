@@ -2,8 +2,6 @@ import * as THREE from 'three';
 
 import { rotationAxis, RotationAxisTypes, PositionTypes } from '../../models/HandPose';
 
-// const DEPTH = 0;
-
 export class Normalize {
   constructor(private width: number, private height: number) {}
 
@@ -32,7 +30,7 @@ export class Normalize {
     const offset = 16;
     normalizePosition[0] = ((originPosition[0] * 2.0 - this.width) / this.width) * offset + 2; // X
     normalizePosition[1] = -((originPosition[1] * 2.0 - this.height) / this.height) * offset + 4; // Y
-    // normalizePosition[2] = (position[2] * 2.0 - DEPTH) / DEPTH; // Z
+    normalizePosition[2] = originPosition[2] * 0.1; // Z
     return normalizePosition;
   }
 

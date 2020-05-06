@@ -10,7 +10,7 @@ export class TransOrbitControls {
     private camera: THREE.Camera,
     private renderer: THREE.WebGLRenderer,
     private scene: THREE.Scene,
-    private mesh: THREE.Mesh | THREE.Group,
+    private mesh: THREE.Mesh | THREE.Group | THREE.Object3D,
     private tick: void
   ) {
     this.initControls();

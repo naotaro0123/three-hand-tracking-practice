@@ -25,12 +25,12 @@ export class DatGUI {
 
   private initGUI() {
     this.gui = new GUI();
-
+    // console.log(this.object);
     if (this.object instanceof THREE.Mesh) {
       this.addFolder(this.mode, this.object, true);
-    } else if (this.object instanceof THREE.Group) {
+    } else if (this.object instanceof THREE.Bone) {
       // when hand model
-      console.log(this.object);
+      // console.log(this.object);
       this.addFoldersHandPose(this.object);
     }
   }
@@ -45,15 +45,11 @@ export class DatGUI {
     }
   }
 
-  private addFoldersHandPose(group: THREE.Group) {
+  private addFoldersHandPose(group: THREE.Bone) {
+    console.log('addFoldersHandPose');
     group.traverse((object) => {
-      if (object.name === 'Armature') {
-        object.traverse((childObject) => {
-          if (childObject.type === 'Bone') {
-            this.addFolder(childObject.name, childObject);
-          }
-        });
-      }
+      // console.log(object.name);
+      this.addFolder(object.name, object);
     });
   }
 

@@ -63,11 +63,18 @@ export class GLTFDebug {
       this.character.scale.set(scaleX, scaleY, scaleZ);
 
       this.character.traverse((mesh) => {
-        if (mesh instanceof THREE.Mesh) {
+        if (mesh instanceof THREE.SkinnedMesh) {
           mesh.material = new THREE.MeshLambertMaterial({
             color: 0x00ff00,
             side: THREE.DoubleSide,
           });
+          // console.log(mesh);
+          // console.log(mesh.skeleton);
+          // const rootBone = mesh.skeleton.bones[0];
+          // mesh.add(rootBone);
+          // mesh.bind(mesh.skeleton, mesh.bindMatrix);
+          // const helper = new THREE.SkeletonHelper(rootBone);
+          // this.scene.add(helper);
         }
       });
       this.scene.add(this.character);
@@ -78,13 +85,29 @@ export class GLTFDebug {
   }
 
   commonInit() {
-    this.gui = new DatGUI(this.mode, this.character);
+    const mesh = this.character.children[0].children[1] as THREE.SkinnedMesh;
+    const rootBone = mesh.skeleton.bones[0];
+    // mesh.add(rootBone);
+    mesh.bind(mesh.skeleton, mesh.bindMatrix);
+
+    const helper = new THREE.SkeletonHelper(rootBone);
+    this.scene.add(helper);
+    // console.log(helper);
+    // console.log(this.character.children[0]);
+    // const helper = new THREE.SkeletonHelper(mesh);
+    // this.scene.add(helper);
+    // mesh.add(rootBone);
+    // mesh.bind(mesh.skeleton, rootBone.matrixWorld);
+    // const bbox = mesh.geometry.boundingBox;
+    // bbox.setFromObject(rootBone);
+
+    this.gui = new DatGUI(this.mode, rootBone);
     new TransOrbitControls(
       this.mode,
       this.camera,
       this.renderer,
       this.scene,
-      this.character,
+      rootBone,
       this.tick()
     );
   }

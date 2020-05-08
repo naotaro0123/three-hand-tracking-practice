@@ -70,9 +70,9 @@ export class GLTFDebug {
           });
           // console.log(mesh);
           // console.log(mesh.skeleton);
-          const rootBone = mesh.skeleton.bones[0];
-          mesh.add(rootBone);
-          mesh.bind(mesh && mesh.skeleton);
+          // const rootBone = mesh.skeleton.bones[0];
+          // mesh.add(rootBone);
+          // mesh.bind(mesh && mesh.skeleton);
           // const helper = new THREE.SkeletonHelper(rootBone);
           // this.scene.add(helper);
         }
@@ -85,15 +85,18 @@ export class GLTFDebug {
   }
 
   commonInit() {
+    console.log(this.character);
     const mesh = this.character?.children[0]?.children[1] as THREE.SkinnedMesh;
-    // const rootBone = mesh.skeleton.bones[0];
-    const skeleton = new THREE.Skeleton(mesh && mesh.skeleton.bones);
-    // mesh.add(skeleton.bones[0]);
+    const rootBone = mesh.skeleton.bones[0];
+    // const skeleton = new THREE.Skeleton(mesh && mesh.skeleton.bones);
+    // mesh.add(rootBone);
+    // mesh.bind(mesh.skeleton);
+    rootBone.add(mesh);
     // mesh.bind(mesh.skeleton);
 
     const helper = new THREE.SkeletonHelper(this.character);
     this.scene.add(helper);
-    console.log(mesh, skeleton);
+    // console.log(mesh);
     // console.log(this.character.children[0]);
     // const helper = new THREE.SkeletonHelper(mesh);
     // this.scene.add(helper);
@@ -102,13 +105,13 @@ export class GLTFDebug {
     // const bbox = mesh.geometry.boundingBox;
     // bbox.setFromObject(rootBone);
 
-    this.gui = new DatGUI(this.mode, skeleton.bones[0]);
+    this.gui = new DatGUI(this.mode, rootBone);
     new TransOrbitControls(
       this.mode,
       this.camera,
       this.renderer,
       this.scene,
-      skeleton.bones[0],
+      rootBone,
       this.tick()
     );
   }

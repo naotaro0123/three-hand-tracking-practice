@@ -5,7 +5,7 @@ import { DatGUI } from '../common/DatGUI';
 import { TransOrbitControls } from '../common/TransOrbitControls';
 import { TransControlMode } from '../../models/Mode';
 
-const GLTF_PATH = '../../assets/hand.gltf';
+const GLTF_PATH = '../../assets/cube.gltf';
 const radius180 = Math.PI;
 const characterInfo = {
   position: [0.0, 5.0, 0.0],
@@ -85,15 +85,23 @@ export class GLTFDebug {
   }
 
   commonInit() {
-    console.log(this.character);
     const mesh = this.character?.children[0]?.children[1] as THREE.SkinnedMesh;
     const rootBone = mesh.skeleton.bones[0];
     // console.log(rootBone);
     // const skeleton = new THREE.Skeleton(mesh && mesh.skeleton.bones);
     // mesh.add(rootBone);
-    mesh.bind(mesh.skeleton);
-    // rootBone.add(mesh);
     // mesh.bind(mesh.skeleton);
+    rootBone.add(mesh);
+    // mesh.bind(mesh.skeleton);
+    // rootBone.parent = mesh;
+    // mesh.children = [];
+    // rootBone.parent = undefined;
+
+    // mesh.add(rootBone);
+    // mesh.bind(mesh.skeleton);
+    // rootBone.add(mesh);
+    // mesh.bind(new THREE.Skeleton(mesh.skeleton.bones), mesh.matrixWorld);
+    console.log(mesh, rootBone, mesh.skeleton);
 
     const helper = new THREE.SkeletonHelper(this.character);
     this.scene.add(helper);
@@ -118,6 +126,8 @@ export class GLTFDebug {
   }
 
   tick() {
+    // const mesh = this.character?.children[0]?.children[1] as THREE.SkinnedMesh;
+    // mesh.bind(mesh.skeleton);
     this.gui.update();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(() => this.tick());

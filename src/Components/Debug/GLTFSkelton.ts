@@ -82,8 +82,36 @@ export class GLTFSkelton {
     const geometry = this.createGeometry(sizing);
     const bones = this.createBones(sizing);
     this.mesh = this.createMesh(geometry, bones);
+    this.setupDatGui(bones);
+    this.setupTransOrbitControl(bones[0]);
     this.mesh.scale.multiplyScalar(1);
     this.scene.add(this.mesh);
+  }
+
+  createGeometry(sizing: SizingType) {
+    const geometry = new THREE.CylinderBufferGeometry(
+      5,
+      5,
+      sizing.height,
+      8,
+      sizing.segmentCount * 3,
+      true
+    );
+    const position = geometry.attributes.position as THREE.BufferAttribute;
+    const vertex = new THREE.Vector3();
+    const skinIndices = [];
+    const skinWeights = [];
+    for (let i = 0; i < position.count; i++) {
+      vertex.fromBufferAttribute(position, i);
+      const y = vertex.y + sizing.halfHeight;
+      const skinIndex = Math.floor(y / sizing.segmentHeight);
+      const skinWeight = (y % sizing.segmentHeight) / sizing.segmentHeight;
+      skinIndices.push(skinIndex, skinIndex + 1, 0, 0);
+      skinWeights.push(1 - skinWeight, skinWeight, 0, 0);
+    }
+    geometry.setAttribute('skinIndex', new Uint16BufferAttribute(skinIndices, 4));
+    geometry.setAttribute('skinWeight', new Float32BufferAttribute(skinWeights, 4));
+    return geometry;
   }
 
   createBones(sizing: SizingType) {
@@ -112,12 +140,12 @@ export class GLTFSkelton {
     });
     const skinnedMesh = new THREE.SkinnedMesh(geometry, material);
     const skelton = new THREE.Skeleton(bones);
+    // 以下をコメントにしても動く
     skinnedMesh.add(bones[0]);
     skinnedMesh.bind(skelton);
+    console.log(skinnedMesh, bones[0], skelton);
     const skeltonHelper = new THREE.SkeletonHelper(skinnedMesh);
     this.scene.add(skeltonHelper);
-    this.setupDatGui(bones);
-    this.setupTransOrbitControl(bones[0]);
     return skinnedMesh;
   }
 
@@ -165,32 +193,6 @@ export class GLTFSkelton {
       rootBone,
       this.tick()
     );
-  }
-
-  createGeometry(sizing: SizingType) {
-    const geometry = new THREE.CylinderBufferGeometry(
-      5,
-      5,
-      sizing.height,
-      8,
-      sizing.segmentCount * 3,
-      true
-    );
-    const position = geometry.attributes.position as THREE.BufferAttribute;
-    const vertex = new THREE.Vector3();
-    const skinIndices = [];
-    const skinWeights = [];
-    for (let i = 0; i < position.count; i++) {
-      vertex.fromBufferAttribute(position, i);
-      const y = vertex.y + sizing.halfHeight;
-      const skinIndex = Math.floor(y / sizing.segmentHeight);
-      const skinWeight = (y % sizing.segmentHeight) / sizing.segmentHeight;
-      skinIndices.push(skinIndex, skinIndex + 1, 0, 0);
-      skinWeights.push(1 - skinWeight, skinWeight, 0, 0);
-    }
-    geometry.setAttribute('skinIndex', new Uint16BufferAttribute(skinIndices, 4));
-    geometry.setAttribute('skinWeight', new Float32BufferAttribute(skinWeights, 4));
-    return geometry;
   }
 
   tick() {

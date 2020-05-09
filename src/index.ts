@@ -8,7 +8,8 @@
 
 // Debug Sample
 // import { QuaternionDebug as HelloPose } from './Components/Debug/QuaternionDebug';
-import { GLTFDebug as HelloPose } from './Components/Debug/GLTFDebug';
+// import { GLTFDebug as HelloPose } from './Components/Debug/GLTFDebug';
+import { GLTFSkelton as HelloPose } from './Components/Debug/GLTFSkelton';
 
 window.addEventListener('DOMContentLoaded', () => {
   new HelloPose();

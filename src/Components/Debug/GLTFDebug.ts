@@ -88,10 +88,11 @@ export class GLTFDebug {
     console.log(this.character);
     const mesh = this.character?.children[0]?.children[1] as THREE.SkinnedMesh;
     const rootBone = mesh.skeleton.bones[0];
+    // console.log(rootBone);
     // const skeleton = new THREE.Skeleton(mesh && mesh.skeleton.bones);
     // mesh.add(rootBone);
-    // mesh.bind(mesh.skeleton);
-    rootBone.add(mesh);
+    mesh.bind(mesh.skeleton);
+    // rootBone.add(mesh);
     // mesh.bind(mesh.skeleton);
 
     const helper = new THREE.SkeletonHelper(this.character);

@@ -23,7 +23,6 @@ export class GLTFSkelton {
   private scene: THREE.Scene;
   private gui: GUI;
   private mesh: THREE.SkinnedMesh;
-  private skeltonHelper: THREE.SkeletonHelper;
   private mode: TransControlMode = 'rotate';
 
   constructor() {
@@ -115,8 +114,8 @@ export class GLTFSkelton {
     const skelton = new THREE.Skeleton(bones);
     skinnedMesh.add(bones[0]);
     skinnedMesh.bind(skelton);
-    this.skeltonHelper = new THREE.SkeletonHelper(skinnedMesh);
-    this.scene.add(this.skeltonHelper);
+    const skeltonHelper = new THREE.SkeletonHelper(skinnedMesh);
+    this.scene.add(skeltonHelper);
     this.setupDatGui(bones);
     this.setupTransOrbitControl(bones[0]);
     return skinnedMesh;
@@ -195,6 +194,7 @@ export class GLTFSkelton {
   }
 
   tick() {
+    this.gui.updateDisplay();
     const timer = Date.now() * 0.001;
     if (state.animateBones) {
       for (let i = 0; i < this.mesh.skeleton.bones.length; i++) {

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as handpose from '@tensorflow-models/handpose';
 
 import { Video } from '../common/Video';
@@ -6,10 +7,18 @@ import { DatGUI } from '../common/DatGUI';
 import { Normalize } from '../common/Normalize';
 import { TransOrbitControls } from '../common/TransOrbitControls';
 import { TransControlMode } from '../../models/Mode';
-import { PositionTypes, HandMeshTypes } from '../../models/HandPose';
+import { PositionTypes } from '../../models/HandPose';
 
-const WIDTH = 500;
-const HEIGHT = 500;
+const WIDTH = 600;
+const HEIGHT = 600;
+const GLTF_PATH = '../../assets/hand.gltf';
+const radius180 = Math.PI;
+const characterInfo = {
+  position: [0.0, 0.0, 0.0],
+  rotation: [0.0, 0.0, 0.0],
+  scale: [4.0, 4.0, 4.0],
+};
+const isNoPredict = true;
 
 export class HandPoseGLTF {
   private width: number;
@@ -17,20 +26,14 @@ export class HandPoseGLTF {
   private renderer: THREE.WebGLRenderer;
   private camera: THREE.Camera;
   private scene: THREE.Scene;
-  private meshes: HandMeshTypes = {
-    palmBase: [],
-    thumb: [],
-    indexFinger: [],
-    middleFinger: [],
-    ringFinger: [],
-    pinky: [],
-  };
   private model: handpose.HandPose;
   private video: HTMLVideoElement;
   private predictResult: { [key: string]: PositionTypes[] };
   private gui: DatGUI;
   private mode: TransControlMode = 'translate';
   private normalize: Normalize;
+  private characterGroup: THREE.Group;
+  private rootBone: THREE.Bone;
 
   constructor() {
     this.width = WIDTH;
@@ -45,90 +48,79 @@ export class HandPoseGLTF {
     this.init();
   }
 
-  async init() {
+  init() {
     this.scene = new THREE.Scene();
     const gridHelper = new THREE.GridHelper(200, 50);
     this.scene.add(gridHelper);
+    const light = new THREE.DirectionalLight(0xffffff, 10);
+    this.scene.add(light);
     this.initCamera();
 
-    await this.addObject();
-    await this.initHandPose();
-    await this.commonInit(this.meshes.palmBase[0]);
-    await this.tick();
+    this.addObject();
   }
 
   initCamera() {
     this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
-    this.camera.position.set(0, 10, -40);
+    this.camera.position.set(0, 1, -40);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
-  commonInit(operateMesh: THREE.Mesh) {
-    this.gui = new DatGUI(this.mode, operateMesh);
-    new TransOrbitControls(
-      this.mode,
-      this.camera,
-      this.renderer,
-      this.scene,
-      operateMesh,
-      this.tick()
-    );
-  }
-
   addObject() {
-    // create Parent Mesh(palmBase)
-    const geometry = new THREE.BoxBufferGeometry(1, 3, 1);
-    const material = new THREE.MeshBasicMaterial({
-      color: 0x00ff00,
-      side: THREE.DoubleSide,
+    const loader = new GLTFLoader();
+    loader.load(GLTF_PATH, (gltf) => {
+      this.characterGroup = gltf.scene;
+      const {
+        position: [posX, posY, posZ],
+        rotation: [rotateX, rotateY, rotateZ],
+        scale: [scaleX, scaleY, scaleZ],
+      } = characterInfo;
+      this.characterGroup.position.set(posX, posY, posZ);
+      this.characterGroup.rotation.set(rotateX, rotateY, rotateZ);
+      this.characterGroup.scale.set(scaleX, scaleY, scaleZ);
+      this.scene.add(this.characterGroup);
+
+      const armature = this.characterGroup.children[0];
+      const skeltonHelper = new THREE.SkeletonHelper(armature);
+      this.scene.add(skeltonHelper);
+
+      this.characterGroup.traverse(async (mesh) => {
+        if (mesh instanceof THREE.SkinnedMesh) {
+          await this.initHandPose();
+          await this.commonInit(mesh);
+          await this.tick();
+        }
+      });
     });
-    this.meshes.palmBase[0] = new THREE.Mesh(geometry, material);
-    this.scene.add(this.meshes.palmBase[0]);
-
-    this.addWireframe(geometry);
-    // create Child Meshs(non palmBase)
-    this.addOtherObjects(material);
-  }
-
-  addOtherObjects(material: THREE.MeshBasicMaterial) {
-    const materials = [material.clone(), material.clone(), material.clone(), material.clone()];
-    materials[0].color = new THREE.Color(0x00ffff);
-    materials[1].color = new THREE.Color(0x0000ff);
-    materials[2].color = new THREE.Color(0xff00ff);
-    materials[3].color = new THREE.Color(0xff0000);
-
-    const meshNames = Object.keys(this.meshes);
-    for (let i = 1; i < meshNames.length; i++) {
-      const mesh = this.meshes[meshNames[i]];
-      for (let j = 0; j < 4; j++) {
-        mesh[j] = this.meshes.palmBase[0].clone();
-        mesh[j].material = materials[j];
-        this.scene.add(mesh[j]);
-      }
-    }
-  }
-
-  addWireframe(geometry) {
-    const wireframe = new THREE.WireframeGeometry(geometry);
-    const line = new THREE.LineSegments(wireframe);
-    line.material = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-      opacity: 0.25,
-      transparent: true,
-    });
-    this.scene.add(line);
   }
 
   async initHandPose() {
-    this.model = await handpose.load();
+    if (!isNoPredict) {
+      this.model = await handpose.load();
+    }
     this.normalize = new Normalize(this.width, this.height);
     const video = new Video(this.width, this.height);
     this.video = await video.setupWebCamera();
     await this.video.play();
   }
 
+  commonInit(operateMesh: THREE.SkinnedMesh) {
+    this.rootBone = operateMesh.skeleton.bones[0];
+
+    this.gui = new DatGUI(this.mode, this.rootBone);
+    new TransOrbitControls(
+      this.mode,
+      this.camera,
+      this.renderer,
+      this.scene,
+      this.rootBone,
+      this.tick()
+    );
+  }
+
   tick() {
-    this.predict();
+    if (!isNoPredict) {
+      this.predict();
+    }
 
     this.gui.update();
     this.renderer.render(this.scene, this.camera);
@@ -144,31 +136,28 @@ export class HandPoseGLTF {
   }
 
   rePositionMeshs() {
-    const meshNames = Object.keys(this.meshes);
     const thumbPredict = this.predictResult['thumb'][0];
-
-    meshNames.forEach((meshName: keyof HandMeshTypes) => {
-      this.meshes[meshName].forEach((mesh, index) => {
-        if (meshName === 'palmBase') {
-          this.normalize.calclate(
-            mesh,
-            this.predictResult[meshName][index],
-            this.predictResult['middleFinger'][0],
-            thumbPredict
-          );
-        } else {
-          const comprePredictResult =
-            index === 0
-              ? this.predictResult['palmBase'][0]
-              : this.predictResult[meshName][index - 1];
-          this.normalize.calclate(
-            mesh,
-            this.predictResult[meshName][index],
-            comprePredictResult,
-            thumbPredict
-          );
-        }
-      });
+    this.rootBone.traverse((bone) => {
+      const index = Number(bone.name.replace(/[a-zA-Z]/g, ''));
+      const boneName = bone.name.replace(/[0-9]/g, '');
+      if (boneName === 'palmBase') {
+        this.normalize.calclate(
+          bone,
+          this.predictResult[boneName][index],
+          this.predictResult['middleFinger'][0],
+          thumbPredict
+        );
+      // } else {
+      //   const comprePredictResult =
+      //     index === 0 ? this.predictResult['palmBase'][0] : this.predictResult[boneName][index - 1];
+      //   this.normalize.calclate(
+      //     bone,
+      //     this.predictResult[boneName][index],
+      //     comprePredictResult,
+      //     thumbPredict,
+      //     false
+      //   );
+      }
     });
   }
 }

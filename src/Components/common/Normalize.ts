@@ -6,20 +6,23 @@ export class Normalize {
   constructor(private width: number, private height: number) {}
 
   async calclate(
-    mesh: THREE.Mesh,
+    object: THREE.Mesh | THREE.Object3D,
     originPosition: PositionTypes,
     comparePosition: PositionTypes,
-    thumbPredict: PositionTypes
+    thumbPredict: PositionTypes,
+    isMovePosition: boolean = true
   ) {
     const rePosition = this.normalizePosition(originPosition);
-    mesh.position.set(...rePosition);
+    if (isMovePosition) {
+      object.position.set(...rePosition);
+    }
 
     const reComparePosition = this.normalizePosition(comparePosition);
     const quaternion = this.normalizeRotation(rePosition, reComparePosition, 'z');
 
     const thumb = this.normalizePosition(thumbPredict);
     const quaternionRotation = this.normalizeRotation(rePosition, thumb, 'y');
-    mesh.rotation.setFromQuaternion(quaternion.multiply(quaternionRotation));
+    object.rotation.setFromQuaternion(quaternion.multiply(quaternionRotation));
   }
 
   private normalizePosition(originPosition: PositionTypes): PositionTypes {

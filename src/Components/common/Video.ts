@@ -13,8 +13,6 @@ export class Video {
       audio: false,
       video: {
         facingMode: 'user',
-        // Only setting the video to a specified size in order to accommodate a
-        // point cloud, so on mobile devices accept the default size.
         width: this.width,
         height: this.height,
       },

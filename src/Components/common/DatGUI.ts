@@ -25,12 +25,9 @@ export class DatGUI {
 
   private initGUI() {
     this.gui = new GUI();
-    // console.log(this.object);
     if (this.object instanceof THREE.Mesh) {
       this.addFolder(this.mode, this.object, true);
     } else if (this.object instanceof THREE.Bone) {
-      // when hand model
-      // console.log(this.object);
       this.addFoldersHandPose(this.object);
     }
   }
@@ -46,9 +43,7 @@ export class DatGUI {
   }
 
   private addFoldersHandPose(group: THREE.Bone) {
-    console.log('addFoldersHandPose');
     group.traverse((object) => {
-      // console.log(object.name);
       this.addFolder(object.name, object);
     });
   }

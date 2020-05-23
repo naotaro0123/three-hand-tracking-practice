@@ -9,11 +9,12 @@ export type RotationAxisTypes = keyof typeof rotationAxis;
 
 export type PositionTypes = [number, number, number];
 
-export type HandMeshTypes = {
-  palmBase: THREE.Mesh[];
-  thumb: THREE.Mesh[];
-  indexFinger: THREE.Mesh[];
-  middleFinger: THREE.Mesh[];
-  ringFinger: THREE.Mesh[];
-  pinky: THREE.Mesh[];
-};
+export type HandNameTypes =
+  | 'palmBase'
+  | 'thumb'
+  | 'indexFinger'
+  | 'middleFinger'
+  | 'ringFinger'
+  | 'pinky';
+export type HandMeshTypes = { [k in HandNameTypes]?: THREE.Mesh[] };
+export type HandBoneTypes = { [k in HandNameTypes]?: THREE.Bone };

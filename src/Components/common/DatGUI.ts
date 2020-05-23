@@ -34,9 +34,11 @@ export class DatGUI {
 
   private addFolder(folderName: string, object: THREE.Object3D, isOpen: boolean = false) {
     const guiFolder = this.gui.addFolder(folderName);
-    guiFolder.add(this.target(object), 'x', 0, Math.PI * 2, 0.01);
-    guiFolder.add(this.target(object), 'y', 0, Math.PI * 2, 0.01);
-    guiFolder.add(this.target(object), 'z', 0, Math.PI * 2, 0.01);
+    const max = 10;
+    const min = -max;
+    ['x', 'y', 'z'].forEach((pos) => {
+      guiFolder.add(this.target(object), pos, min, max, 0.01);
+    });
     if (isOpen) {
       guiFolder.open();
     }

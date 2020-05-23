@@ -34,19 +34,21 @@ export class DebugGLTF {
   }
 
   async init() {
-    this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
-    this.camera.position.set(0, 10, -50);
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
-
     this.scene = new THREE.Scene();
-
     const gridHelper = new THREE.GridHelper(200, 50);
     this.scene.add(gridHelper);
+    this.initCamera();
 
     const light = new THREE.DirectionalLight(0xffffff, 10);
     this.scene.add(light);
 
     this.addObject();
+  }
+
+  initCamera() {
+    this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
+    this.camera.position.set(0, 10, -50);
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
   addObject() {
@@ -78,7 +80,7 @@ export class DebugGLTF {
       // });
 
       // NG: SkinnedMesh and Bones are No Bind
-      // this.character.traverse((mesh) => {
+      // this.characterGroup.traverse((mesh) => {
       //   if (mesh instanceof THREE.SkinnedMesh) {
       //     mesh.material = new THREE.MeshLambertMaterial({
       //       color: 0x00ff00,

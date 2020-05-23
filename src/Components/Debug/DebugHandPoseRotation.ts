@@ -6,25 +6,20 @@ import { DatGUI } from '../common/DatGUI';
 import { Normalize } from '../common/Normalize';
 import { TransOrbitControls } from '../common/TransOrbitControls';
 import { TransControlMode } from '../../models/Mode';
-import { PositionTypes, HandMeshTypes } from '../../models/HandPose';
+import { PositionTypes } from '../../models/HandPose';
 
 const WIDTH = 500;
 const HEIGHT = 500;
 
-export class HandPose3DHands {
+export class DebugHandPoseRotation {
   private width: number;
   private height: number;
   private renderer: THREE.WebGLRenderer;
   private camera: THREE.Camera;
   private scene: THREE.Scene;
-  private meshes: HandMeshTypes = {
-    palmBase: [],
-    thumb: [],
-    indexFinger: [],
-    middleFinger: [],
-    ringFinger: [],
-    pinky: [],
-  };
+  private palmBaseMesh: THREE.Mesh;
+  private middleFingerMesh: THREE.Mesh[];
+  private thumbMesh: THREE.Mesh;
   private model: handpose.HandPose;
   private video: HTMLVideoElement;
   private predictResult: { [key: string]: PositionTypes[] };
@@ -51,15 +46,22 @@ export class HandPose3DHands {
     this.scene.add(gridHelper);
     this.initCamera();
 
-    await this.addObject();
+    await this.addParentObject();
+    this.middleFingerMesh = await [
+      this.addChildObject(0x00ffff),
+      this.addChildObject(0x00ffaa),
+      this.addChildObject(0x00ff55),
+      this.addChildObject(0x00ff00),
+    ];
+    this.thumbMesh = await this.addChildObject(0xffffff);
     await this.initHandPose();
-    await this.commonInit(this.meshes.palmBase[0]);
+    await this.commonInit(this.palmBaseMesh);
     await this.tick();
   }
 
   initCamera() {
     this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
-    this.camera.position.set(0, 10, -40);
+    this.camera.position.set(0, 10, -50);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
@@ -75,37 +77,27 @@ export class HandPose3DHands {
     );
   }
 
-  addObject() {
-    // create Parent Mesh(palmBase)
-    const geometry = new THREE.BoxBufferGeometry(1, 3, 1);
+  addParentObject() {
+    const geometry = new THREE.BoxBufferGeometry(3, 4, 3);
     const material = new THREE.MeshBasicMaterial({
-      color: 0x00ff00,
+      color: 0xff0000,
       side: THREE.DoubleSide,
     });
-    this.meshes.palmBase[0] = new THREE.Mesh(geometry, material);
-    this.scene.add(this.meshes.palmBase[0]);
+    this.palmBaseMesh = new THREE.Mesh(geometry, material);
+    this.scene.add(this.palmBaseMesh);
 
     this.addWireframe(geometry);
-    // create Child Meshs(non palmBase)
-    this.addOtherObjects(material);
   }
 
-  addOtherObjects(material: THREE.MeshBasicMaterial) {
-    const materials = [material.clone(), material.clone(), material.clone(), material.clone()];
-    materials[0].color = new THREE.Color(0x00ffff);
-    materials[1].color = new THREE.Color(0x0000ff);
-    materials[2].color = new THREE.Color(0xff00ff);
-    materials[3].color = new THREE.Color(0xff0000);
-
-    const meshNames = Object.keys(this.meshes);
-    for (let i = 1; i < meshNames.length; i++) {
-      const mesh = this.meshes[meshNames[i]];
-      for (let j = 0; j < 4; j++) {
-        mesh[j] = this.meshes.palmBase[0].clone();
-        mesh[j].material = materials[j];
-        this.scene.add(mesh[j]);
-      }
-    }
+  addChildObject(color: number): THREE.Mesh {
+    const geometry = new THREE.BoxBufferGeometry(2, 3, 2);
+    const material = new THREE.MeshBasicMaterial({
+      color,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    this.scene.add(mesh);
+    return mesh;
   }
 
   addWireframe(geometry) {
@@ -139,36 +131,50 @@ export class HandPose3DHands {
     const predictions = await this.model.estimateHands(this.video);
     if (predictions.length > 0) {
       this.predictResult = predictions[0].annotations;
-      this.rePositionMeshs();
+      const thumbPredict = this.predictResult['thumb'][0];
+      // palmBaseMesh
+      this.normalize.calclate(
+        this.palmBaseMesh,
+        this.predictResult['palmBase'][0],
+        this.predictResult['middleFinger'][0],
+        thumbPredict
+      );
+      // middleFingerMesh
+      this.normalize.calclate(
+        this.middleFingerMesh[0],
+        this.predictResult['middleFinger'][0],
+        this.predictResult['palmBase'][0],
+        thumbPredict
+      );
+      this.normalize.calclate(
+        this.middleFingerMesh[1],
+        this.predictResult['middleFinger'][1],
+        this.predictResult['middleFinger'][0],
+        thumbPredict
+      );
+      this.normalize.calclate(
+        this.middleFingerMesh[2],
+        this.predictResult['middleFinger'][2],
+        this.predictResult['middleFinger'][1],
+        thumbPredict
+      );
+      this.normalize.calclate(
+        this.middleFingerMesh[3],
+        this.predictResult['middleFinger'][3],
+        this.predictResult['middleFinger'][2],
+        thumbPredict
+      );
+      // thumbMesh
+      this.normalize.calclate(
+        this.thumbMesh,
+        this.predictResult['thumb'][0],
+        this.predictResult['palmBase'][0],
+        thumbPredict
+      );
+
+      console.log(
+        this.predictResult.palmBase[0] < this.predictResult.thumb[0] ? 'FrontSide' : 'BackSide'
+      );
     }
-  }
-
-  rePositionMeshs() {
-    const meshNames = Object.keys(this.meshes);
-    const thumbPredict = this.predictResult['thumb'][0];
-
-    meshNames.forEach((meshName: keyof HandMeshTypes) => {
-      this.meshes[meshName].forEach((mesh, index) => {
-        if (meshName === 'palmBase') {
-          this.normalize.calclate(
-            mesh,
-            this.predictResult[meshName][index],
-            this.predictResult['middleFinger'][0],
-            thumbPredict
-          );
-        } else {
-          const comprePredictResult =
-            index === 0
-              ? this.predictResult['palmBase'][0]
-              : this.predictResult[meshName][index - 1];
-          this.normalize.calclate(
-            mesh,
-            this.predictResult[meshName][index],
-            comprePredictResult,
-            thumbPredict
-          );
-        }
-      });
-    });
   }
 }

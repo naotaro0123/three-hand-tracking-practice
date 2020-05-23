@@ -4,7 +4,7 @@ import { DatGUI } from '../common/DatGUI';
 import { TransOrbitControls } from '../common/TransOrbitControls';
 import { TransControlMode } from '../../models/Mode';
 
-export class QuaternionDebug {
+export class DebugQuaternion {
   private width: number;
   private height: number;
   private renderer: THREE.WebGLRenderer;

@@ -3,13 +3,14 @@
 // import { FaceMeshMediaPipe as HelloPose } from './Components/FaceMesh/FaceMeshMediaPipe';
 
 // Original Test Code
-// import { HandPoseDebug as HelloPose } from './Components/HandPose/HandPoseDebug';
-// import { HandPose3DHands as HelloPose } from './Components/HandPose/HandPose3DHands';
+// import { HandPoseCubeHands as HelloPose } from './Components/HandPose/HandPoseCubeHands';
+import { HandPoseGLTF as HelloPose } from './Components/HandPose/HandPoseGLTF';
 
 // Debug Sample
-// import { QuaternionDebug as HelloPose } from './Components/Debug/QuaternionDebug';
-import { GLTFDebug as HelloPose } from './Components/Debug/GLTFDebug';
-// import { GLTFSkelton as HelloPose } from './Components/Debug/GLTFSkelton';
+// import { DebugQuaternion as HelloPose } from './Components/Debug/DebugQuaternion';
+// import { DebugHandPoseRotation as HelloPose } from './Components/Debug/DebugHandPoseRotation';
+// import { DebugSkelton as HelloPose } from './Components/Debug/DebugSkelton';
+// import { DebugGLTF as HelloPose } from './Components/Debug/DebugGLTF';
 
 window.addEventListener('DOMContentLoaded', () => {
   new HelloPose();

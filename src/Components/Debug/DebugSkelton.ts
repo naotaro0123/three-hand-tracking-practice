@@ -15,7 +15,7 @@ const state = {
   animateBones: false,
 };
 
-export class GLTFSkelton {
+export class DebugSkelton {
   private width: number;
   private height: number;
   private renderer: THREE.WebGLRenderer;

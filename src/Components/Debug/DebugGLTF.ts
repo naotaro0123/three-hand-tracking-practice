@@ -13,7 +13,7 @@ const characterInfo = {
   scale: [4.0, 4.0, 4.0],
 };
 
-export class GLTFDebug {
+export class DebugGLTF {
   private width: number;
   private height: number;
   private renderer: THREE.WebGLRenderer;

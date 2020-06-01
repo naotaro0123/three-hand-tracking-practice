@@ -7,7 +7,7 @@ import { DatGUI } from '../common/DatGUI';
 import { Normalize } from '../common/Normalize';
 import { TransOrbitControls } from '../common/TransOrbitControls';
 import { TransControlMode } from '../../models/Mode';
-import { PositionTypes } from '../../models/HandPose';
+import { PositionTypes, HandNameTypes } from '../../models/HandPose';
 
 const WIDTH = 600;
 const HEIGHT = 600;
@@ -15,10 +15,10 @@ const GLTF_PATH = '../../assets/hand.gltf';
 const radius180 = Math.PI;
 const characterInfo = {
   position: [0.0, 0.0, 0.0],
-  rotation: [0.0, 0.0, 0.0],
+  rotation: [0.0, radius180, 0.0],
   scale: [4.0, 4.0, 4.0],
 };
-const isNoPredict = true;
+const isNoPredict = false;
 
 export class HandPoseGLTF {
   private width: number;
@@ -30,7 +30,7 @@ export class HandPoseGLTF {
   private video: HTMLVideoElement;
   private predictResult: { [key: string]: PositionTypes[] };
   private gui: DatGUI;
-  private mode: TransControlMode = 'translate';
+  private mode: TransControlMode = 'rotate';
   private normalize: Normalize;
   private characterGroup: THREE.Group;
   private rootBone: THREE.Bone;
@@ -139,24 +139,25 @@ export class HandPoseGLTF {
     const thumbPredict = this.predictResult['thumb'][0];
     this.rootBone.traverse((bone) => {
       const index = Number(bone.name.replace(/[a-zA-Z]/g, ''));
-      const boneName = bone.name.replace(/[0-9]/g, '');
+      const boneName = bone.name.replace(/[0-9]/g, '') as HandNameTypes;
       if (boneName === 'palmBase') {
+        // this.normalize.calclate(
+        //   bone,
+        //   this.predictResult[boneName][index],
+        //   this.predictResult['middleFinger'][0],
+        //   thumbPredict
+        // );
+      } else if (boneName === 'middleFinger' && index === 3) {
+        const comprePredictResult = this.predictResult[boneName][index - 1];
+        // const comprePredictResult =
+        //   index === 0 ? this.predictResult['palmBase'][0] : this.predictResult[boneName][index - 1];
         this.normalize.calclate(
           bone,
           this.predictResult[boneName][index],
-          this.predictResult['middleFinger'][0],
-          thumbPredict
+          comprePredictResult,
+          thumbPredict,
+          false
         );
-      // } else {
-      //   const comprePredictResult =
-      //     index === 0 ? this.predictResult['palmBase'][0] : this.predictResult[boneName][index - 1];
-      //   this.normalize.calclate(
-      //     bone,
-      //     this.predictResult[boneName][index],
-      //     comprePredictResult,
-      //     thumbPredict,
-      //     false
-      //   );
       }
     });
   }

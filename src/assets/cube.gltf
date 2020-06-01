@@ -16,7 +16,7 @@
     ],
     "nodes" : [
         {
-            "name" : "Bone.002",
+            "name" : "middleFinger.1",
             "translation" : [
                 0,
                 1.8610968589782715,
@@ -27,7 +27,7 @@
             "children" : [
                 0
             ],
-            "name" : "Bone.001",
+            "name" : "middleFinger.0",
             "translation" : [
                 0,
                 2.009408473968506,
@@ -38,7 +38,7 @@
             "children" : [
                 1
             ],
-            "name" : "Bone"
+            "name" : "palmBase.0"
         },
         {
             "mesh" : 0,

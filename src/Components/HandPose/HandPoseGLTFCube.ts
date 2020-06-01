@@ -11,7 +11,7 @@ import { PositionTypes, HandNameTypes } from '../../models/HandPose';
 
 const WIDTH = 600;
 const HEIGHT = 600;
-const GLTF_PATH = '../../assets/hand.gltf';
+const GLTF_PATH = '../../assets/cube.gltf';
 const radius180 = Math.PI;
 const characterInfo = {
   position: [0.0, 0.0, 0.0],
@@ -19,8 +19,9 @@ const characterInfo = {
   scale: [4.0, 4.0, 4.0],
 };
 const isNoPredict = false;
+const isShowHelper = false;
 
-export class HandPoseGLTF {
+export class HandPoseGLTFCube {
   private width: number;
   private height: number;
   private renderer: THREE.WebGLRenderer;
@@ -52,8 +53,34 @@ export class HandPoseGLTF {
     this.scene = new THREE.Scene();
     const gridHelper = new THREE.GridHelper(200, 50);
     this.scene.add(gridHelper);
-    const light = new THREE.DirectionalLight(0xffffff, 10);
-    this.scene.add(light);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    directionalLight.position.set(0, 2, -2);
+    this.scene.add(directionalLight);
+
+    if (isShowHelper) {
+      const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 15);
+      this.scene.add(directionalLightHelper);
+    }
+
+    const pointLightLeft = new THREE.PointLight(0xffffff, 1.0);
+    pointLightLeft.position.set(10, 5, -2);
+    this.scene.add(pointLightLeft);
+
+    if (isShowHelper) {
+      const pointLightLeftHelper = new THREE.PointLightHelper(pointLightLeft);
+      this.scene.add(pointLightLeftHelper);
+    }
+
+    const pointLightRight = new THREE.PointLight(0xffffff, 1.0);
+    pointLightRight.position.set(-10, 5, -2);
+    this.scene.add(pointLightRight);
+
+    if (isShowHelper) {
+      const pointLightRightHelper = new THREE.PointLightHelper(pointLightRight);
+      this.scene.add(pointLightRightHelper);
+    }
+
     this.initCamera();
 
     this.addObject();
@@ -61,7 +88,7 @@ export class HandPoseGLTF {
 
   initCamera() {
     this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
-    this.camera.position.set(0, 1, -40);
+    this.camera.position.set(0, 10, -50);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
@@ -141,16 +168,15 @@ export class HandPoseGLTF {
       const index = Number(bone.name.replace(/[a-zA-Z]/g, ''));
       const boneName = bone.name.replace(/[0-9]/g, '') as HandNameTypes;
       if (boneName === 'palmBase') {
-        // this.normalize.calclate(
-        //   bone,
-        //   this.predictResult[boneName][index],
-        //   this.predictResult['middleFinger'][0],
-        //   thumbPredict
-        // );
-      } else if (boneName === 'middleFinger' && index === 3) {
-        const comprePredictResult = this.predictResult[boneName][index - 1];
-        // const comprePredictResult =
-        //   index === 0 ? this.predictResult['palmBase'][0] : this.predictResult[boneName][index - 1];
+        this.normalize.calclate(
+          bone,
+          this.predictResult[boneName][index],
+          this.predictResult['middleFinger'][0],
+          thumbPredict
+        );
+      } else {
+        const comprePredictResult =
+          index === 0 ? this.predictResult['palmBase'][0] : this.predictResult[boneName][index - 1];
         this.normalize.calclate(
           bone,
           this.predictResult[boneName][index],

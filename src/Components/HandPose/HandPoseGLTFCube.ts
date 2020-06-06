@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader, GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as handpose from '@tensorflow-models/handpose';
 
 import { Video } from '../common/Video';
@@ -92,31 +92,30 @@ export class HandPoseGLTFCube {
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
-  addObject() {
+  async addObject() {
     const loader = new GLTFLoader();
-    loader.load(GLTF_PATH, (gltf) => {
-      this.characterGroup = gltf.scene;
-      const {
-        position: [posX, posY, posZ],
-        rotation: [rotateX, rotateY, rotateZ],
-        scale: [scaleX, scaleY, scaleZ],
-      } = characterInfo;
-      this.characterGroup.position.set(posX, posY, posZ);
-      this.characterGroup.rotation.set(rotateX, rotateY, rotateZ);
-      this.characterGroup.scale.set(scaleX, scaleY, scaleZ);
-      this.scene.add(this.characterGroup);
+    const gltf = await loader.loadAsync(GLTF_PATH);
+    this.characterGroup = gltf.scene;
+    const {
+      position: [posX, posY, posZ],
+      rotation: [rotateX, rotateY, rotateZ],
+      scale: [scaleX, scaleY, scaleZ],
+    } = characterInfo;
+    this.characterGroup.position.set(posX, posY, posZ);
+    this.characterGroup.rotation.set(rotateX, rotateY, rotateZ);
+    this.characterGroup.scale.set(scaleX, scaleY, scaleZ);
+    this.scene.add(this.characterGroup);
 
-      const armature = this.characterGroup.children[0];
-      const skeltonHelper = new THREE.SkeletonHelper(armature);
-      this.scene.add(skeltonHelper);
+    const armature = this.characterGroup.children[0];
+    const skeltonHelper = new THREE.SkeletonHelper(armature);
+    this.scene.add(skeltonHelper);
 
-      this.characterGroup.traverse(async (mesh) => {
-        if (mesh instanceof THREE.SkinnedMesh) {
-          await this.initHandPose();
-          await this.commonInit(mesh);
-          await this.tick();
-        }
-      });
+    this.characterGroup.traverse(async (mesh) => {
+      if (mesh instanceof THREE.SkinnedMesh) {
+        await this.initHandPose();
+        await this.commonInit(mesh);
+        await this.tick();
+      }
     });
   }
 

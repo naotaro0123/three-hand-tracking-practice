@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader, GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import { DatGUI } from '../common/DatGUI';
 import { TransOrbitControls } from '../common/TransOrbitControls';
@@ -51,47 +51,46 @@ export class DebugHandGLTF {
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   }
 
-  addObject() {
+  async addObject() {
     const loader = new GLTFLoader();
-    loader.load(GLTF_PATH, (gltf) => {
-      this.characterGroup = gltf.scene;
-      const {
-        position: [posX, posY, posZ],
-        rotation: [rotateX, rotateY, rotateZ],
-        scale: [scaleX, scaleY, scaleZ],
-      } = characterInfo;
-      this.characterGroup.position.set(posX, posY, posZ);
-      this.characterGroup.rotation.set(rotateX, rotateY, rotateZ);
-      this.characterGroup.scale.set(scaleX, scaleY, scaleZ);
-      this.scene.add(this.characterGroup);
+    const gltf: GLTF = await loader.loadAsync(GLTF_PATH);
+    this.characterGroup = gltf.scene;
+    const {
+      position: [posX, posY, posZ],
+      rotation: [rotateX, rotateY, rotateZ],
+      scale: [scaleX, scaleY, scaleZ],
+    } = characterInfo;
+    this.characterGroup.position.set(posX, posY, posZ);
+    this.characterGroup.rotation.set(rotateX, rotateY, rotateZ);
+    this.characterGroup.scale.set(scaleX, scaleY, scaleZ);
+    this.scene.add(this.characterGroup);
 
-      const armature = this.characterGroup.children[0];
-      const skeltonHelper = new THREE.SkeletonHelper(armature);
-      this.scene.add(skeltonHelper);
+    const armature = this.characterGroup.children[0];
+    const skeltonHelper = new THREE.SkeletonHelper(armature);
+    this.scene.add(skeltonHelper);
 
-      // NG: SkinnedMesh and Bones are No Bind
-      // armature.children.forEach((object) => {
-      //   if (object instanceof THREE.SkinnedMesh) {
-      //     object.material = new THREE.MeshLambertMaterial({
-      //       color: 0x00ff00,
-      //       side: THREE.DoubleSide,
-      //     });
-      //   }
-      // });
+    // NG: SkinnedMesh and Bones are No Bind
+    // armature.children.forEach((object) => {
+    //   if (object instanceof THREE.SkinnedMesh) {
+    //     object.material = new THREE.MeshLambertMaterial({
+    //       color: 0x00ff00,
+    //       side: THREE.DoubleSide,
+    //     });
+    //   }
+    // });
 
-      // NG: SkinnedMesh and Bones are No Bind
-      // this.characterGroup.traverse((mesh) => {
-      //   if (mesh instanceof THREE.SkinnedMesh) {
-      //     mesh.material = new THREE.MeshLambertMaterial({
-      //       color: 0x00ff00,
-      //       side: THREE.DoubleSide,
-      //     });
-      //   }
-      // });
+    // NG: SkinnedMesh and Bones are No Bind
+    // this.characterGroup.traverse((mesh) => {
+    //   if (mesh instanceof THREE.SkinnedMesh) {
+    //     mesh.material = new THREE.MeshLambertMaterial({
+    //       color: 0x00ff00,
+    //       side: THREE.DoubleSide,
+    //     });
+    //   }
+    // });
 
-      this.commonInit();
-      this.tick();
-    });
+    this.commonInit();
+    this.tick();
   }
 
   commonInit() {

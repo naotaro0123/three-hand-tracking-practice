@@ -3871,10 +3871,10 @@ safe-regex@^1.1.0:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-scatter-gl@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/scatter-gl/-/scatter-gl-0.0.5.tgz#58c78962de7662cd71926a79cc0429372e9b2f84"
-  integrity sha512-6wQgxtybhsFj1P6fB7WnSGboqnZLDb5X9nZNZHVPFx+A/o/4lHl81E0/YBu+VPkfkWvT78dptJxfjnPFXFshdQ==
+scatter-gl@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/scatter-gl/-/scatter-gl-0.0.7.tgz#08b695fe01b36d5e384d348ea5ac5b7da3387888"
+  integrity sha512-aQIkbuEjCeiY/nevZQv2TZMvqG/wZbOvTlJTHliP+ACN8b5Bhc/TCM/F45uOE4f1xciQkGvpZIR6AX6vUQQVwg==
   dependencies:
     three "^0.113"
 
@@ -4390,10 +4390,10 @@ three@^0.113:
   resolved "https://registry.yarnpkg.com/three/-/three-0.113.2.tgz#04791d491fe4359330f9dbe7b767db18bfb35d67"
   integrity sha512-x3vrKW41/UtbWbWduWKGlfIc043SvHWr3YltehYq+UGb9YglQ2oztNGvl2eut05JtNSmP11Mh3t6Xak5/0e+Fg==
 
-three@^0.116.0:
-  version "0.116.1"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.116.1.tgz#a393f7a81fdc3e2fbf57ded5ba47dc5bd3678ce0"
-  integrity sha512-l2JCMiA/lVZAuSrLWRYMalvpR+0j8hbIhCpfs4V6JFnw2+JQEQJ5HltNpfFr+9TDpQts1BhtcISehWf/xBGPvQ==
+three@^0.120.0:
+  version "0.120.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.120.0.tgz#238ab7a9e5d92af6bab3d257ea2b1891c90aef63"
+  integrity sha512-Swffpi3EAHWkmqC1MagKEzR5XgwkDiyeWI3M7vkGbBc0xhq2LcQmJj5DqBruLkrgcZQ+fM/+fSQBU1tDvggO4A==
 
 through2@^2.0.0:
   version "2.0.5"

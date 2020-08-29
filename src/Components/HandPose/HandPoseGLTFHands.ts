@@ -140,12 +140,12 @@ export class HandPoseGLTFHands {
       const index = Number(bone.name.replace(/[a-zA-Z]/g, ''));
       const boneName = bone.name.replace(/[0-9]/g, '') as HandNameTypes;
       if (boneName === 'palmBase') {
-        // this.normalize.calclate(
-        //   bone,
-        //   this.predictResult[boneName][index],
-        //   this.predictResult['middleFinger'][0],
-        //   thumbPredict
-        // );
+        this.normalize.calclate(
+          bone,
+          this.predictResult[boneName][index],
+          this.predictResult['middleFinger'][0],
+          thumbPredict
+        );
       } else if (boneName === 'middleFinger' && index === 3) {
         const comprePredictResult = this.predictResult[boneName][index - 1];
         // const comprePredictResult =

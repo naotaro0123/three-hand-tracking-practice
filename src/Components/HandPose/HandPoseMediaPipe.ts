@@ -4,6 +4,7 @@
 // https://github.com/PAIR-code/scatter-gl
 
 import * as handpose from '@tensorflow-models/handpose';
+import '@tensorflow/tfjs-backend-webgl';
 import { Coords3D } from '@tensorflow-models/handpose/dist/pipeline';
 import { ScatterGL, Point3D } from 'scatter-gl';
 

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as handpose from '@tensorflow-models/handpose';
+import '@tensorflow/tfjs-backend-webgl';
 
 import { Video } from '../common/Video';
 import { DatGUI } from '../common/DatGUI';

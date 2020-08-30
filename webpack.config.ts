@@ -1,5 +1,12 @@
-import { Rule, Module, Configuration } from 'webpack';
+import { Rule, Module, Configuration as WebpackConfiguration } from 'webpack';
+import { Configuration as WebpackDevServerConfiguration } from "webpack-dev-server";
 import * as path from 'path';
+
+// Reference Issue: 'devServer' does not exist in type 'Configuration'
+// https://github.com/DefinitelyTyped/DefinitelyTyped/issues/27570
+interface Configuration extends WebpackConfiguration {
+  devServer?: WebpackDevServerConfiguration;
+}
 
 const rules: Rule[] = [
   {

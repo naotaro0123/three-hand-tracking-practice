@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader, GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as handpose from '@tensorflow-models/handpose';
+import '@tensorflow/tfjs-backend-webgl';
 
 import { Video } from '../common/Video';
 import { DatGUI } from '../common/DatGUI';

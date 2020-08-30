@@ -1,4 +1,5 @@
 import * as facemesh from '@tensorflow-models/facemesh';
+import '@tensorflow/tfjs-backend-webgl';
 import { ScatterGL } from 'scatter-gl';
 
 import { TRIANGULATION } from '../../const/triangulation';

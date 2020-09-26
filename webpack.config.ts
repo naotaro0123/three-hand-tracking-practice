@@ -1,4 +1,4 @@
-import { Rule, Module, Configuration as WebpackConfiguration } from 'webpack';
+import { RuleSetRule, Module, Configuration as WebpackConfiguration } from 'webpack';
 import { Configuration as WebpackDevServerConfiguration } from "webpack-dev-server";
 import * as path from 'path';
 
@@ -8,7 +8,7 @@ interface Configuration extends WebpackConfiguration {
   devServer?: WebpackDevServerConfiguration;
 }
 
-const rules: Rule[] = [
+const rules: RuleSetRule[] = [
   {
     exclude: /node_modules/,
     test: /\.ts$/,

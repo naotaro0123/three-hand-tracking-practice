@@ -1,5 +1,8 @@
-# three-hand-tracking
+# three-hand-tracking[WIP]
 three.js x MediaPipe
+
+## develop status
+under development
 
 ## Build Setup
 use node v13.2.0

@@ -132,7 +132,7 @@ export class DebugSkelton {
 
   createMesh(geometry: THREE.CylinderBufferGeometry, bones: THREE.Bone[]) {
     const material = new THREE.MeshPhongMaterial({
-      skinning: true,
+      // skinning: true,
       color: 0x156289,
       emissive: 0x072534,
       side: DoubleSide,

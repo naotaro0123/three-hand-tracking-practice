@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GLTFLoader, GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as handpose from '@tensorflow-models/handpose';
 import '@tensorflow/tfjs-backend-webgl';
 
@@ -12,7 +12,7 @@ import { PositionTypes, HandNameTypes } from '../../models/HandPose';
 
 const WIDTH = 600;
 const HEIGHT = 600;
-const GLTF_PATH = '../../assets/cube.gltf';
+const GLTF_PATH = './assets/cube.gltf';
 const radius180 = Math.PI;
 const characterInfo = {
   position: [0.0, 0.0, 0.0],
@@ -112,9 +112,9 @@ export class HandPoseGLTFCube {
     this.scene.add(skeltonHelper);
 
     this.characterGroup.traverse(async (mesh) => {
-      if (mesh instanceof THREE.SkinnedMesh) {
+      if (mesh.type === 'SkinnedMesh') {
         await this.initHandPose();
-        await this.commonInit(mesh);
+        await this.commonInit(mesh as THREE.SkinnedMesh);
         await this.tick();
       }
     });

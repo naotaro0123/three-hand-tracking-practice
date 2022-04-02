@@ -1,12 +1,4 @@
-import { RuleSetRule, Module, Configuration as WebpackConfiguration } from 'webpack';
-import { Configuration as WebpackDevServerConfiguration } from "webpack-dev-server";
-import * as path from 'path';
-
-// Reference Issue: 'devServer' does not exist in type 'Configuration'
-// https://github.com/DefinitelyTyped/DefinitelyTyped/issues/27570
-interface Configuration extends WebpackConfiguration {
-  devServer?: WebpackDevServerConfiguration;
-}
+import type { RuleSetRule, Configuration } from 'webpack';
 
 const rules: RuleSetRule[] = [
   {
@@ -25,10 +17,6 @@ const rules: RuleSetRule[] = [
   },
 ];
 
-const module: Module = {
-  rules,
-};
-
 const config: Configuration = {
   mode: 'development',
   entry: {
@@ -37,16 +25,11 @@ const config: Configuration = {
   output: {
     path: `${__dirname}/dist`,
   },
+  module: {
+    rules,
+  },
   resolve: {
     extensions: ['.ts', '.js'],
-  },
-  module,
-  devServer: {
-    contentBase: path.resolve(__dirname, './src'),
-    watchContentBase: true,
-    port: 4000,
-    open: true,
-    openPage: './index.html',
   },
 };
 

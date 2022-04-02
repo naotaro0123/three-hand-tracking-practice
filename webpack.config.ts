@@ -31,6 +31,7 @@ const config: Configuration = {
   resolve: {
     extensions: ['.ts', '.js'],
   },
+  devtool: 'eval-source-map',
 };
 
 export default config;

@@ -1,13 +1,16 @@
-# three-hand-tracking[WIP]
-three.js x MediaPipe
+# three-hand-tracking-practice[WIP]
+
+three.js x MediaPipe practice
 
 ## develop status
+
 under development
 
 ## Build Setup
-use node v13.2.0
 
-``` bash
+use node v17.8.0
+
+```bash
 # install dependencies
 $ yarn
 

@@ -1,6 +1,12 @@
-# three-hand-tracking-practice[WIP]
+# three-hand-tracking-practice[deprecated]
 
 three.js x MediaPipe practice
+
+This source is deprecated as it has changed from `@tensorflow-models` to `@mediapipe` package.
+
+## Official Document
+
+- [MediaPipe in JavaScript](https://google.github.io/mediapipe/getting_started/javascript.html)
 
 ## develop status
 

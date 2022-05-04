@@ -14,7 +14,7 @@ use node v17.8.0
 # install dependencies
 $ yarn
 
-# serve with hot reload at localhost:3000
+# serve with hot reload at localhost:8080
 $ yarn dev
 
 # build for production and launch server
